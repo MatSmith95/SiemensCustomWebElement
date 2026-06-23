@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <title>MSDigitalJoystickV2</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+    <link rel='stylesheet' href='./styles.css' />
+
+    <script src='./js/webcc.min.js'></script>
+</head>
+
+<body>
+    <main id='joystickApp'>
+        <section class='joystick-card' aria-label='Digital analogue joystick'>
+            <div id='joystickArea' class='joystick-area' role='application' aria-label='Joystick control'>
+                <div class='axis-line horizontal'></div>
+                <div class='axis-line vertical'></div>
+                <div class='limit-ring'></div>
+                <div id='joystickKnob' class='joystick-knob'></div>
+            </div>
+
+            <div id='valuePanel' class='value-panel'>
+                <div class='value-box'><span class='value-label'>X</span><span id='xText' class='value-number'>0.0</span></div>
+                <div class='value-box'><span class='value-label'>Y</span><span id='yText' class='value-number'>0.0</span></div>
+                <div class='value-box'><span class='value-label'>Active</span><span id='activeText' class='value-number'>FALSE</span></div>
+                <div class='value-box'><span class='value-label'>HB</span><span id='heartbeatText' class='value-number'>0</span></div>
+                <div class='value-box'><span class='value-label'>Fault</span><span id='faultText' class='value-number'>FALSE</span></div>
+            </div>
+        </section>
+    </main>
+
+    <script src='./code.js'></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+:root {
+    --panel-bg: #101827;
+    --panel-border: #31405a;
+    --text-main: #f2f7ff;
+    --text-muted: #9fb0ca;
+    --base-bg: #151f30;
+    --base-border: #52627c;
+    --knob-bg: #eef3f8;
+    --knob-edge: #8091aa;
+    --accent: #5cc8ff;
+    --danger: #ff9b4a;
+    --joy-size: 220px;
+    --knob-size: 74px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text-main);
+    background: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+#joystickApp {
+    width: 100%;
+    height: 100%;
+    min-width: 160px;
+    min-height: 160px;
+    padding: 8px;
+}
+
+.joystick-card {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+}
+
+.joystick-area {
+    position: relative;
+    width: var(--joy-size);
+    height: var(--joy-size);
+    min-width: 80px;
+    min-height: 80px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at center, rgba(92, 200, 255, 0.16) 0 3px, transparent 4px),
+        radial-gradient(circle at center, #101827 0 40%, var(--base-bg) 41% 100%);
+    border: 2px solid var(--base-border);
+    box-shadow:
+        inset 0 0 18px rgba(0, 0, 0, 0.55),
+        0 6px 18px rgba(0, 0, 0, 0.25);
+    touch-action: none;
+    flex: 0 0 auto;
+}
+
+.axis-line {
+    position: absolute;
+    opacity: 0.35;
+    background: var(--base-border);
+    pointer-events: none;
+}
+
+.axis-line.horizontal {
+    height: 1px;
+    width: 78%;
+    top: 50%;
+    left: 11%;
+}
+
+.axis-line.vertical {
+    width: 1px;
+    height: 78%;
+    left: 50%;
+    top: 11%;
+}
+
+.limit-ring {
+    position: absolute;
+    left: 18%;
+    top: 18%;
+    width: 64%;
+    height: 64%;
+    border-radius: 50%;
+    border: 1px solid rgba(159, 176, 202, 0.25);
+    pointer-events: none;
+}
+
+.joystick-knob {
+    position: absolute;
+    width: var(--knob-size);
+    height: var(--knob-size);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid var(--knob-edge);
+    background:
+        radial-gradient(circle at 32% 25%, #ffffff 0 9%, transparent 10%),
+        radial-gradient(circle at 45% 35%, #f9fbff 0 0%, var(--knob-bg) 0 55%, #cad3df 100%);
+    box-shadow:
+        0 7px 15px rgba(0, 0, 0, 0.45),
+        inset 0 -5px 9px rgba(0, 0, 0, 0.17);
+    pointer-events: none;
+}
+
+.joystick-area.active {
+    border-color: var(--accent);
+    box-shadow:
+        inset 0 0 18px rgba(92, 200, 255, 0.20),
+        0 0 16px rgba(92, 200, 255, 0.22);
+}
+
+.joystick-area.disabled {
+    opacity: 0.45;
+    filter: grayscale(0.8);
+}
+
+.value-panel {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+    font-size: 11px;
+    flex: 0 0 auto;
+}
+
+.value-box {
+    min-width: 0;
+    border: 1px solid rgba(159, 176, 202, 0.30);
+    border-radius: 7px;
+    padding: 4px 5px;
+    background: rgba(2, 6, 23, 0.25);
+}
+
+.value-label {
+    color: var(--text-muted);
+    display: block;
+    font-size: 10px;
+    margin-bottom: 1px;
+}
+
+.value-number {
+    font-weight: bold;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.fault {
+    color: var(--danger);
+}
+
+.hidden {
+    display: none !important;
+}

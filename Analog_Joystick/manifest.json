@@ -1,0 +1,139 @@
+{
+  "$schema": "./CWC_manifest_Schema.json",
+  "mver": "1.2.0",
+  "control": {
+    "identity": {
+      "name": "MSDigitalJoystick",
+      "version": "1.1",
+      "displayname": "MSDigitalJoystickV2",
+      "icon": "./assets/logo.ico",
+      "type": "guid://7F7F3A42-0D7E-4AE0-B115-45B297DA62B0",
+      "start": "./control/index.html"
+    },
+    "environment": {
+      "prerequisites": {
+        "renderingspace": {
+          "defaultwidth": 320,
+          "defaultheight": 320,
+          "unit": "px"
+        }
+      },
+      "extensions": {
+        "HMI": {
+          "mandatory": true,
+          "version": "~1.0.0"
+        }
+      }
+    },
+    "metadata": {
+      "author": "Mathew Smith",
+      "keywords": [
+        "Joystick",
+        "Round",
+        "WinCCUnified",
+        "CustomWebControl"
+      ]
+    },
+    "contracts": {
+      "api": {
+        "methods": {
+          "ResetJoystick": {
+            "description": "Return joystick output to zero."
+          },
+          "SetEnabled": {
+            "parameters": {
+              "enabled": {
+                "type": "boolean"
+              }
+            },
+            "description": "Enable or disable operator interaction."
+          }
+        },
+        "events": {
+          "JoystickChanged": {
+            "arguments": {
+              "payload": {
+                "type": "string"
+              }
+            },
+            "description": "Fired when joystick output is updated."
+          },
+          "JoystickReleased": {
+            "description": "Fired when the joystick is released."
+          },
+          "JoystickFault": {
+            "arguments": {
+              "reason": {
+                "type": "string"
+              }
+            },
+            "description": "Fired when the joystick forces a safe stop."
+          }
+        },
+        "properties": {
+          "JoyX": {
+            "type": "number",
+            "default": 0,
+            "description": "Joystick X output."
+          },
+          "JoyY": {
+            "type": "number",
+            "default": 0,
+            "description": "Joystick Y output."
+          },
+          "JoyActive": {
+            "type": "boolean",
+            "default": false,
+            "description": "True while joystick is pressed."
+          },
+          "JoyHeartbeat": {
+            "type": "number",
+            "default": 0,
+            "description": "Incrementing heartbeat value."
+          },
+          "JoyFault": {
+            "type": "boolean",
+            "default": false,
+            "description": "Forced safe stop flag."
+          },
+          "Enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable operator interaction."
+          },
+          "Deadband": {
+            "type": "number",
+            "default": 5,
+            "description": "Deadband in output units."
+          },
+          "MaxOutput": {
+            "type": "number",
+            "default": 100,
+            "description": "Maximum absolute output value."
+          },
+          "UpdateMs": {
+            "type": "number",
+            "default": 50,
+            "description": "Minimum output update interval in milliseconds."
+          },
+          "InvertY": {
+            "type": "boolean",
+            "default": true,
+            "description": "When true, up is positive Y."
+          },
+          "AxisMode": {
+            "type": "string",
+            "default": "XY",
+            "description": "XY, X_ONLY, or Y_ONLY."
+          },
+          "ShowValues": {
+            "type": "boolean",
+            "default": true,
+            "description": "Show live values."
+          }
+        }
+      }
+    },
+    "types": {}
+  }
+}
