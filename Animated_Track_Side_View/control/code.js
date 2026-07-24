@@ -90,20 +90,30 @@
     function readConfig() {
         const maxSpeed = Math.max(0.001, Math.abs(toNumber(readProperty('MaxSpeed'), DEFAULTS.MaxSpeed)));
         const inputSpeed = toNumber(readProperty('TrackSpeed'), DEFAULTS.TrackSpeed);
-        const reverseDirection = toBoolean(readProperty('ReverseDirection'), false);
+        const reverseDirection = toBoolean(
+            readProperty('ReverseDirection'),
+            DEFAULTS.ReverseDirection
+        );
         const directionMultiplier = reverseDirection ? -1 : 1;
 
         return {
             trackSpeed: inputSpeed,
-            maxSpeed: maxSpeed,
             normalizedSpeed: clamp(inputSpeed / maxSpeed, -1, 1),
-            animationScale: clamp(Math.abs(toNumber(readProperty('AnimationScale'), 1)), 0, 10),
-            enabled: toBoolean(readProperty('Enabled'), true),
+            animationScale: clamp(
+                Math.abs(toNumber(readProperty('AnimationScale'), DEFAULTS.AnimationScale)),
+                0,
+                10
+            ),
+            enabled: toBoolean(readProperty('Enabled'), DEFAULTS.Enabled),
             reverseDirection: reverseDirection,
             displayDirection: Math.sign(inputSpeed * directionMultiplier),
-            treadCount: Math.round(clamp(toNumber(readProperty('TreadCount'), 38), 12, 72)),
-            showValues: toBoolean(readProperty('ShowValues'), true),
-            alarm: toBoolean(readProperty('Alarm'), false)
+            treadCount: Math.round(clamp(
+                toNumber(readProperty('TreadCount'), DEFAULTS.TreadCount),
+                12,
+                72
+            )),
+            showValues: toBoolean(readProperty('ShowValues'), DEFAULTS.ShowValues),
+            alarm: toBoolean(readProperty('Alarm'), DEFAULTS.Alarm)
         };
     }
 
@@ -187,15 +197,22 @@
         });
     }
 
+    function isMoving(config) {
+        return config.enabled &&
+            config.normalizedSpeed !== 0 &&
+            config.animationScale > 0;
+    }
+
     function describeMotion(config) {
         if (!config.enabled) return 'PAUSED';
+        if (!isMoving(config)) return 'STOPPED';
         if (config.displayDirection > 0) return 'FORWARD';
         if (config.displayDirection < 0) return 'REVERSE';
         return 'STOPPED';
     }
 
     function updateStatus(config) {
-        const moving = config.enabled && config.displayDirection !== 0;
+        const moving = isMoving(config);
         const description = describeMotion(config);
 
         elements.app.classList.toggle('moving', moving);
@@ -208,9 +225,10 @@
 
     function publishState(reason) {
         const config = readConfig();
+        const moving = isMoving(config);
         const payload = {
             speed: config.trackSpeed,
-            moving: config.enabled && config.displayDirection !== 0,
+            moving: moving,
             direction: describeMotion(config),
             enabled: config.enabled,
             reversed: config.reverseDirection,
@@ -243,7 +261,7 @@
 
     function animationTick(timestamp) {
         const config = readConfig();
-        const moving = config.enabled && config.normalizedSpeed !== 0 && config.animationScale > 0 && !document.hidden;
+        const moving = isMoving(config) && !document.hidden;
 
         if (!moving) {
             stopAnimationLoop();
@@ -266,11 +284,7 @@
 
     function syncAnimationLoop() {
         const config = readConfig();
-        const shouldAnimate =
-            config.enabled &&
-            config.normalizedSpeed !== 0 &&
-            config.animationScale > 0 &&
-            !document.hidden;
+        const shouldAnimate = isMoving(config) && !document.hidden;
 
         if (shouldAnimate && state.animationFrame === null) {
             state.previousTime = null;
@@ -325,10 +339,9 @@
     WebCC.start(
         function (result) {
             if (result) {
-                console.log('Animated Track Side View connected successfully');
                 initializeTrack();
             } else {
-                console.log('Animated Track Side View connection failed');
+                console.error('Animated Track Side View failed to connect to WebCC.');
             }
         },
         {

@@ -7,6 +7,27 @@ This repository contains browser-based controls for Siemens WinCC Unified:
 - `Animated_Track_Top_View`
 - `Gauge`
 
+## Animated track import packages
+
+The GUID-named ZIP files are the Siemens import artifacts. Their manifest GUIDs
+match their filenames and each archive contains its control files at the ZIP
+root.
+
+| Control | Import package |
+| --- | --- |
+| Animated Track Side View | [`{EA1E9FA4-1404-4ADA-A8F1-7C2D6DACBFA8}.zip`](./Animated_Track_Side_View/%7BEA1E9FA4-1404-4ADA-A8F1-7C2D6DACBFA8%7D.zip) |
+| Animated Track Top View | [`{897B2819-0786-452E-B639-DB45EFFB90F8}.zip`](./Animated_Track_Top_View/%7B897B2819-0786-452E-B639-DB45EFFB90F8%7D.zip) |
+
+Rebuild both packages after changing their source:
+
+```bash
+./scripts/package-track-controls.sh
+```
+
+The script syntax-checks the control JavaScript, parses each manifest, rebuilds
+the ZIPs from an explicit file list, tests the archives and verifies that every
+packaged file matches its source.
+
 ## Local mock mode
 
 The controls normally wait for the Siemens Unified container to initialize

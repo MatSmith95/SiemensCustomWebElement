@@ -2,6 +2,20 @@
 
 Responsive side-view tracked-vehicle animation for Siemens WinCC Unified.
 
+## Siemens import package
+
+Import
+[`{EA1E9FA4-1404-4ADA-A8F1-7C2D6DACBFA8}.zip`](./%7BEA1E9FA4-1404-4ADA-A8F1-7C2D6DACBFA8%7D.zip)
+as the Custom Web Control artifact. Its filename matches the GUID in
+`manifest.json`.
+
+After changing the source, rebuild and verify both animated-track packages from
+the repository root:
+
+```bash
+./scripts/package-track-controls.sh
+```
+
 ## Main properties
 
 - `TrackSpeed`: signed motion input; positive is forward and negative is reverse.

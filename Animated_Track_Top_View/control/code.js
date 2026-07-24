@@ -91,17 +91,28 @@
 
     function readConfig() {
         const maxSpeed = Math.max(0.001, Math.abs(toNumber(readProperty('MaxSpeed'), DEFAULTS.MaxSpeed)));
-        const trackSpeed = toNumber(readProperty('TrackSpeed'), 0);
+        const trackSpeed = toNumber(readProperty('TrackSpeed'), DEFAULTS.TrackSpeed);
 
         return {
             trackSpeed: trackSpeed,
             normalizedSpeed: clamp(trackSpeed / maxSpeed, -1, 1),
-            animationScale: clamp(Math.abs(toNumber(readProperty('AnimationScale'), 1)), 0, 10),
-            enabled: toBoolean(readProperty('Enabled'), true),
-            reverseDirection: toBoolean(readProperty('ReverseDirection'), false),
-            treadCount: Math.round(clamp(toNumber(readProperty('TreadCount'), 18), 8, 36)),
-            showValues: toBoolean(readProperty('ShowValues'), false),
-            alarm: toBoolean(readProperty('Alarm'), false)
+            animationScale: clamp(
+                Math.abs(toNumber(readProperty('AnimationScale'), DEFAULTS.AnimationScale)),
+                0,
+                10
+            ),
+            enabled: toBoolean(readProperty('Enabled'), DEFAULTS.Enabled),
+            reverseDirection: toBoolean(
+                readProperty('ReverseDirection'),
+                DEFAULTS.ReverseDirection
+            ),
+            treadCount: Math.round(clamp(
+                toNumber(readProperty('TreadCount'), DEFAULTS.TreadCount),
+                8,
+                36
+            )),
+            showValues: toBoolean(readProperty('ShowValues'), DEFAULTS.ShowValues),
+            alarm: toBoolean(readProperty('Alarm'), DEFAULTS.Alarm)
         };
     }
 
@@ -183,8 +194,15 @@
         });
     }
 
+    function isMoving(config) {
+        return config.enabled &&
+            config.normalizedSpeed !== 0 &&
+            config.animationScale > 0;
+    }
+
     function describeMotion(config) {
         if (!config.enabled) return 'PAUSED';
+        if (!isMoving(config)) return 'STOPPED';
         const directionMultiplier = config.reverseDirection ? -1 : 1;
         const displayedSpeed = config.trackSpeed * directionMultiplier;
         if (displayedSpeed > 0) return 'FORWARD';
@@ -193,10 +211,7 @@
     }
 
     function updateStatus(config) {
-        const moving =
-            config.enabled &&
-            config.normalizedSpeed !== 0 &&
-            config.animationScale > 0;
+        const moving = isMoving(config);
 
         elements.app.classList.toggle('moving', moving);
         elements.app.classList.toggle('disabled', !config.enabled);
@@ -207,10 +222,11 @@
 
     function publishState(reason) {
         const config = readConfig();
+        const moving = isMoving(config);
         const payload = {
             speed: config.trackSpeed,
             direction: describeMotion(config),
-            moving: config.enabled && config.normalizedSpeed !== 0,
+            moving: moving,
             enabled: config.enabled,
             reversed: config.reverseDirection,
             alarm: config.alarm,
@@ -220,6 +236,7 @@
         const signature = JSON.stringify([
             payload.speed,
             payload.direction,
+            payload.moving,
             payload.enabled,
             payload.reversed,
             payload.alarm
@@ -241,11 +258,7 @@
 
     function animationTick(timestamp) {
         const config = readConfig();
-        const moving =
-            config.enabled &&
-            config.normalizedSpeed !== 0 &&
-            config.animationScale > 0 &&
-            !document.hidden;
+        const moving = isMoving(config) && !document.hidden;
 
         if (!moving) {
             stopAnimationLoop();
@@ -261,7 +274,7 @@
         const distance = config.normalizedSpeed * directionMultiplier * config.animationScale *
             BASE_TRACK_SPEED * elapsedSeconds;
 
-        state.offset -= distance;
+        state.offset = normalizeOffset(state.offset - distance);
         state.previousTime = timestamp;
         renderMotion();
         state.animationFrame = requestAnimationFrame(animationTick);
@@ -269,11 +282,7 @@
 
     function syncAnimationLoop() {
         const config = readConfig();
-        const shouldAnimate =
-            config.enabled &&
-            config.normalizedSpeed !== 0 &&
-            config.animationScale > 0 &&
-            !document.hidden;
+        const shouldAnimate = isMoving(config) && !document.hidden;
 
         if (shouldAnimate && state.animationFrame === null) {
             state.previousTime = null;
@@ -327,10 +336,9 @@
     WebCC.start(
         function (result) {
             if (result) {
-                console.log('Animated Track Top View connected successfully');
                 initializeTrack();
             } else {
-                console.log('Animated Track Top View connection failed');
+                console.error('Animated Track Top View failed to connect to WebCC.');
             }
         },
         {

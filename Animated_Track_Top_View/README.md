@@ -2,6 +2,20 @@
 
 Responsive single-track animation viewed from above for Siemens WinCC Unified.
 
+## Siemens import package
+
+Import
+[`{897B2819-0786-452E-B639-DB45EFFB90F8}.zip`](./%7B897B2819-0786-452E-B639-DB45EFFB90F8%7D.zip)
+as the Custom Web Control artifact. Its filename matches the GUID in
+`manifest.json`.
+
+After changing the source, rebuild and verify both animated-track packages from
+the repository root:
+
+```bash
+./scripts/package-track-controls.sh
+```
+
 ## Main properties
 
 - `TrackSpeed`: signed track input; positive moves towards the top.
