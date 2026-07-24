@@ -3,20 +3,20 @@
   "mver": "1.2.0",
   "control": {
     "identity": {
-      "name": "MSAnimatedTrack",
+      "name": "AnimatedTrackTopView",
       "version": "1.0",
-      "displayname": "MS Animated Track",
+      "displayname": "Animated Track Top View",
       "icon": "./assets/logo.png",
-      "type": "guid://EA1E9FA4-1404-4ADA-A8F1-7C2D6DACBFA8",
+      "type": "guid://897B2819-0786-452E-B639-DB45EFFB90F8",
       "start": "./control/index.html"
     },
     "environment": {
       "prerequisites": {
         "renderingspace": {
-          "minwidth": 260,
-          "minheight": 130,
-          "defaultwidth": 640,
-          "defaultheight": 260,
+          "minwidth": 200,
+          "minheight": 300,
+          "defaultwidth": 400,
+          "defaultheight": 640,
           "unit": "px"
         }
       }
@@ -27,6 +27,7 @@
         "Track",
         "TrackedVehicle",
         "TankTrack",
+        "TopView",
         "Animation",
         "WinCCUnified",
         "CustomWebControl"
@@ -44,7 +45,7 @@
             "description": "Set the signed track speed."
           },
           "StopAnimation": {
-            "description": "Set track speed to zero."
+            "description": "Set the track speed to zero."
           },
           "SetEnabled": {
             "parameters": {
@@ -62,14 +63,14 @@
                 "type": "string"
               }
             },
-            "description": "Fired when the visual motion state changes."
+            "description": "Fired when the displayed track motion state changes."
           }
         },
         "properties": {
           "TrackSpeed": {
             "type": "number",
             "default": 0,
-            "description": "Signed track speed. Positive moves right and negative moves left."
+            "description": "Signed track speed. Positive moves towards the top of the control."
           },
           "MaxSpeed": {
             "type": "number",
@@ -84,27 +85,22 @@
           "Enabled": {
             "type": "boolean",
             "default": true,
-            "description": "Enable track and wheel animation."
+            "description": "Enable track animation."
           },
           "ReverseDirection": {
             "type": "boolean",
             "default": false,
-            "description": "Reverse the displayed movement direction."
+            "description": "Reverse the displayed track direction."
           },
           "TreadCount": {
             "type": "number",
-            "default": 38,
-            "description": "Number of tread plates around the track."
+            "default": 18,
+            "description": "Number of visible tread pads on the track."
           },
           "ShowValues": {
             "type": "boolean",
-            "default": true,
-            "description": "Show the speed and motion state."
-          },
-          "ShowDirection": {
-            "type": "boolean",
-            "default": true,
-            "description": "Show the direction indicator."
+            "default": false,
+            "description": "Show the track speed value."
           },
           "Alarm": {
             "type": "boolean",
@@ -122,14 +118,6 @@
           "TreadColor": {
             "$ref": "#/control/types/Color",
             "default": 4282074711
-          },
-          "WheelColor": {
-            "$ref": "#/control/types/Color",
-            "default": 4283127139
-          },
-          "HubColor": {
-            "$ref": "#/control/types/Color",
-            "default": 4287931320
           },
           "AccentColor": {
             "$ref": "#/control/types/Color",

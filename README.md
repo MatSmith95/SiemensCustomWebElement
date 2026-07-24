@@ -3,7 +3,8 @@
 This repository contains browser-based controls for Siemens WinCC Unified:
 
 - `Analog_Joystick`
-- `Animated_Track`
+- `Animated_Track_Side_View`
+- `Animated_Track_Top_View`
 - `Gauge`
 
 ## Local mock mode
@@ -19,7 +20,8 @@ For a quick panel-compatible smoke test, open the control directly:
 ```bash
 cd /path/to/SiemensCustomWebElement
 open "$PWD/Analog_Joystick/control/index.html"
-open "$PWD/Animated_Track/control/index.html"
+open "$PWD/Animated_Track_Side_View/control/index.html"
+open "$PWD/Animated_Track_Top_View/control/index.html"
 open "$PWD/Gauge/control/index.html"
 ```
 
@@ -32,7 +34,8 @@ python3 -m http.server 8080
 Then open:
 
 - <http://localhost:8080/Analog_Joystick/control/index.html?mock>
-- <http://localhost:8080/Animated_Track/control/index.html?mock>
+- <http://localhost:8080/Animated_Track_Side_View/control/index.html?mock>
+- <http://localhost:8080/Animated_Track_Top_View/control/index.html?mock>
 - <http://localhost:8080/Gauge/control/index.html?mock>
 
 ### Mock commands

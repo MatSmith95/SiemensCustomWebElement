@@ -2,32 +2,32 @@
     'use strict';
 
     const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-    const BASE_PATH_SPEED = 260;
+    const TRACK_START = 36;
+    const TRACK_END = 764;
+    const TRACK_LENGTH = TRACK_END - TRACK_START;
+    const TREAD_X = 20;
+    const TREAD_WIDTH = 460;
+    const BASE_TRACK_SPEED = 230;
     const DEFAULTS = {
         TrackSpeed: 0,
         MaxSpeed: 100,
         AnimationScale: 1,
         Enabled: true,
         ReverseDirection: false,
-        TreadCount: 38,
-        ShowValues: true,
-        ShowDirection: true,
+        TreadCount: 18,
+        ShowValues: false,
         Alarm: false,
         BackgroundColor: 0,
         TrackColor: 4280297784,
         TreadColor: 4282074711,
-        WheelColor: 4283127139,
-        HubColor: 4287931320,
         AccentColor: 4281908728,
         AlarmColor: 4293870660
     };
 
     const state = {
         offset: 0,
-        pathLength: 0,
         treadCount: 0,
-        treadElements: [],
-        wheelElements: [],
+        treads: [],
         animationFrame: null,
         previousTime: null,
         lastPublishedState: ''
@@ -89,35 +89,25 @@
 
     function readConfig() {
         const maxSpeed = Math.max(0.001, Math.abs(toNumber(readProperty('MaxSpeed'), DEFAULTS.MaxSpeed)));
-        const inputSpeed = toNumber(readProperty('TrackSpeed'), DEFAULTS.TrackSpeed);
-        const reverseDirection = toBoolean(readProperty('ReverseDirection'), false);
-        const directionMultiplier = reverseDirection ? -1 : 1;
+        const trackSpeed = toNumber(readProperty('TrackSpeed'), 0);
 
         return {
-            trackSpeed: inputSpeed,
-            maxSpeed: maxSpeed,
-            normalizedSpeed: clamp(inputSpeed / maxSpeed, -1, 1),
+            trackSpeed: trackSpeed,
+            normalizedSpeed: clamp(trackSpeed / maxSpeed, -1, 1),
             animationScale: clamp(Math.abs(toNumber(readProperty('AnimationScale'), 1)), 0, 10),
             enabled: toBoolean(readProperty('Enabled'), true),
-            reverseDirection: reverseDirection,
-            displayDirection: Math.sign(inputSpeed * directionMultiplier),
-            treadCount: Math.round(clamp(toNumber(readProperty('TreadCount'), 38), 12, 72)),
-            showValues: toBoolean(readProperty('ShowValues'), true),
-            showDirection: toBoolean(readProperty('ShowDirection'), true),
+            reverseDirection: toBoolean(readProperty('ReverseDirection'), false),
+            treadCount: Math.round(clamp(toNumber(readProperty('TreadCount'), 18), 8, 36)),
+            showValues: toBoolean(readProperty('ShowValues'), false),
             alarm: toBoolean(readProperty('Alarm'), false)
         };
     }
 
     function cacheElements() {
         elements.app = document.getElementById('trackApp');
-        elements.guide = document.getElementById('trackGuide');
         elements.treads = document.getElementById('treadAssembly');
-        elements.direction = document.getElementById('directionIndicator');
-        elements.directionText = document.getElementById('directionText');
         elements.status = document.getElementById('statusPanel');
-        elements.stateText = document.getElementById('stateText');
         elements.speedText = document.getElementById('speedText');
-        state.wheelElements = Array.prototype.slice.call(document.querySelectorAll('[data-wheel-radius]'));
     }
 
     function applyColors() {
@@ -125,99 +115,100 @@
         rootStyle.setProperty('--background-color', toColor(readProperty('BackgroundColor'), DEFAULTS.BackgroundColor));
         rootStyle.setProperty('--track-color', toColor(readProperty('TrackColor'), DEFAULTS.TrackColor));
         rootStyle.setProperty('--tread-color', toColor(readProperty('TreadColor'), DEFAULTS.TreadColor));
-        rootStyle.setProperty('--wheel-color', toColor(readProperty('WheelColor'), DEFAULTS.WheelColor));
-        rootStyle.setProperty('--hub-color', toColor(readProperty('HubColor'), DEFAULTS.HubColor));
         rootStyle.setProperty('--accent-color', toColor(readProperty('AccentColor'), DEFAULTS.AccentColor));
         rootStyle.setProperty('--alarm-color', toColor(readProperty('AlarmColor'), DEFAULTS.AlarmColor));
     }
 
-    function buildTreads(count) {
-        while (elements.treads.firstChild) {
-            elements.treads.removeChild(elements.treads.firstChild);
-        }
-
-        state.treadElements = [];
-        state.treadCount = count;
-        state.pathLength = elements.guide.getTotalLength();
-
-        const spacing = state.pathLength / count;
-        const width = clamp(spacing * 0.68, 12, 34);
-
-        for (let index = 0; index < count; index++) {
-            const tread = document.createElementNS(SVG_NAMESPACE, 'rect');
-            tread.setAttribute('class', 'tread-plate');
-            tread.setAttribute('x', String(-width / 2));
-            tread.setAttribute('y', '-24');
-            tread.setAttribute('width', String(width));
-            tread.setAttribute('height', '48');
-            tread.setAttribute('rx', '3');
-            tread.dataset.baseDistance = String(index * spacing);
-            elements.treads.appendChild(tread);
-            state.treadElements.push(tread);
+    function clearElement(element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
         }
     }
 
-    function normalizedDistance(distance) {
-        const length = state.pathLength;
-        return ((distance % length) + length) % length;
+    function createTread(container, height, baseOffset) {
+        const group = document.createElementNS(SVG_NAMESPACE, 'g');
+        const pad = document.createElementNS(SVG_NAMESPACE, 'rect');
+        const firstGroove = document.createElementNS(SVG_NAMESPACE, 'line');
+        const secondGroove = document.createElementNS(SVG_NAMESPACE, 'line');
+
+        group.dataset.baseOffset = String(baseOffset);
+
+        pad.setAttribute('class', 'tread-pad');
+        pad.setAttribute('x', String(TREAD_X));
+        pad.setAttribute('y', String(-height / 2));
+        pad.setAttribute('width', String(TREAD_WIDTH));
+        pad.setAttribute('height', String(height));
+        pad.setAttribute('rx', '4');
+
+        [firstGroove, secondGroove].forEach(function (groove, index) {
+            const grooveX = index === 0 ? TREAD_X + 42 : TREAD_X + TREAD_WIDTH - 42;
+            groove.setAttribute('class', 'tread-groove');
+            groove.setAttribute('x1', String(grooveX));
+            groove.setAttribute('x2', String(grooveX));
+            groove.setAttribute('y1', String(-height / 2 + 5));
+            groove.setAttribute('y2', String(height / 2 - 5));
+        });
+
+        group.appendChild(pad);
+        group.appendChild(firstGroove);
+        group.appendChild(secondGroove);
+        container.appendChild(group);
+        return group;
+    }
+
+    function buildTreads(count) {
+        clearElement(elements.treads);
+        state.treads = [];
+        state.treadCount = count;
+
+        const spacing = TRACK_LENGTH / count;
+        const height = clamp(spacing * 0.72, 16, 34);
+
+        for (let index = 0; index < count; index++) {
+            state.treads.push(createTread(elements.treads, height, index * spacing));
+        }
+    }
+
+    function normalizeOffset(value) {
+        return ((value % TRACK_LENGTH) + TRACK_LENGTH) % TRACK_LENGTH;
     }
 
     function renderMotion() {
-        if (!state.pathLength) return;
-
-        state.treadElements.forEach(function (tread) {
-            const distance = normalizedDistance(Number(tread.dataset.baseDistance) + state.offset);
-            const point = elements.guide.getPointAtLength(distance);
-            const previousPoint = elements.guide.getPointAtLength(normalizedDistance(distance - 1));
-            const nextPoint = elements.guide.getPointAtLength(normalizedDistance(distance + 1));
-            const angle = Math.atan2(
-                nextPoint.y - previousPoint.y,
-                nextPoint.x - previousPoint.x
-            ) * 180 / Math.PI;
-
-            tread.setAttribute('transform',
-                'translate(' + point.x.toFixed(2) + ' ' + point.y.toFixed(2) + ') rotate(' + angle.toFixed(2) + ')');
-        });
-
-        state.wheelElements.forEach(function (wheel) {
-            const radius = toNumber(wheel.dataset.wheelRadius, 1);
-            const centreX = wheel.dataset.wheelCx;
-            const centreY = wheel.dataset.wheelCy;
-            const angle = state.offset / radius * 180 / Math.PI;
-            wheel.setAttribute('transform',
-                'rotate(' + angle.toFixed(2) + ' ' + centreX + ' ' + centreY + ')');
+        state.treads.forEach(function (tread) {
+            const baseOffset = toNumber(tread.dataset.baseOffset, 0);
+            const y = TRACK_START + normalizeOffset(baseOffset + state.offset);
+            tread.setAttribute('transform', 'translate(0 ' + y.toFixed(2) + ')');
         });
     }
 
     function describeMotion(config) {
         if (!config.enabled) return 'PAUSED';
-        if (config.displayDirection > 0) return 'FORWARD';
-        if (config.displayDirection < 0) return 'REVERSE';
+        const directionMultiplier = config.reverseDirection ? -1 : 1;
+        const displayedSpeed = config.trackSpeed * directionMultiplier;
+        if (displayedSpeed > 0) return 'FORWARD';
+        if (displayedSpeed < 0) return 'REVERSE';
         return 'STOPPED';
     }
 
     function updateStatus(config) {
-        const moving = config.enabled && config.displayDirection !== 0;
-        const description = describeMotion(config);
+        const moving =
+            config.enabled &&
+            config.normalizedSpeed !== 0 &&
+            config.animationScale > 0;
 
         elements.app.classList.toggle('moving', moving);
         elements.app.classList.toggle('disabled', !config.enabled);
         elements.app.classList.toggle('alarm', config.alarm);
         elements.status.classList.toggle('hidden', !config.showValues);
-        elements.direction.classList.toggle('hidden', !config.showDirection);
-        elements.direction.classList.toggle('reverse', config.displayDirection < 0);
-        elements.direction.classList.toggle('stopped', !moving);
-        elements.directionText.textContent = description;
-        elements.stateText.textContent = description;
-        elements.speedText.textContent = Math.abs(config.trackSpeed).toFixed(1);
+        elements.speedText.textContent = config.trackSpeed.toFixed(1);
     }
 
     function publishState(reason) {
         const config = readConfig();
         const payload = {
             speed: config.trackSpeed,
-            moving: config.enabled && config.displayDirection !== 0,
             direction: describeMotion(config),
+            moving: config.enabled && config.normalizedSpeed !== 0,
             enabled: config.enabled,
             reversed: config.reverseDirection,
             alarm: config.alarm,
@@ -226,7 +217,6 @@
         };
         const signature = JSON.stringify([
             payload.speed,
-            payload.moving,
             payload.direction,
             payload.enabled,
             payload.reversed,
@@ -249,7 +239,11 @@
 
     function animationTick(timestamp) {
         const config = readConfig();
-        const moving = config.enabled && config.normalizedSpeed !== 0 && config.animationScale > 0 && !document.hidden;
+        const moving =
+            config.enabled &&
+            config.normalizedSpeed !== 0 &&
+            config.animationScale > 0 &&
+            !document.hidden;
 
         if (!moving) {
             stopAnimationLoop();
@@ -262,9 +256,10 @@
 
         const elapsedSeconds = clamp((timestamp - state.previousTime) / 1000, 0, 0.1);
         const directionMultiplier = config.reverseDirection ? -1 : 1;
-        const velocity = config.normalizedSpeed * directionMultiplier * config.animationScale * BASE_PATH_SPEED;
+        const distance = config.normalizedSpeed * directionMultiplier * config.animationScale *
+            BASE_TRACK_SPEED * elapsedSeconds;
 
-        state.offset += velocity * elapsedSeconds;
+        state.offset -= distance;
         state.previousTime = timestamp;
         renderMotion();
         state.animationFrame = requestAnimationFrame(animationTick);
@@ -305,8 +300,7 @@
     }
 
     function setSpeed(speed) {
-        const value = toNumber(speed, 0);
-        writeProperty('TrackSpeed', value);
+        writeProperty('TrackSpeed', toNumber(speed, 0));
         refresh('method:SetSpeed');
     }
 
@@ -331,10 +325,10 @@
     WebCC.start(
         function (result) {
             if (result) {
-                console.log('MS Animated Track connected successfully');
+                console.log('Animated Track Top View connected successfully');
                 initializeTrack();
             } else {
-                console.log('MS Animated Track connection failed');
+                console.log('Animated Track Top View connection failed');
             }
         },
         {

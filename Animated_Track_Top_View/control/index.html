@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Animated Track Top View</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./styles.css">
+
+    <script src="./js/webcc.mock.js"></script>
+    <script src="./js/webcc.min.js"></script>
+</head>
+
+<body>
+    <main id="trackApp" class="track-app">
+        <svg id="trackSvg" class="track-svg" viewBox="0 0 500 800" preserveAspectRatio="xMidYMid meet"
+             role="img" aria-labelledby="trackTitle trackDescription">
+            <title id="trackTitle">Animated track top view</title>
+            <desc id="trackDescription">A single animated tracked-vehicle tread viewed from above.</desc>
+
+            <defs>
+                <clipPath id="trackClip">
+                    <rect x="14" y="28" width="472" height="744" rx="110"></rect>
+                </clipPath>
+            </defs>
+
+            <g id="track" class="track-unit">
+                <rect class="track-belt" x="72" y="74" width="356" height="652"></rect>
+                <g id="treadAssembly" class="tread-assembly" clip-path="url(#trackClip)"></g>
+            </g>
+        </svg>
+
+        <section id="statusPanel" class="status-panel hidden" aria-live="polite">
+            <span id="statusDot" class="status-dot"></span>
+            <span id="speedText" class="speed-text">0.0</span>
+        </section>
+
+        <div id="alarmBadge" class="alarm-badge">ALARM</div>
+    </main>
+
+    <script src="./code.js"></script>
+</body>
+</html>

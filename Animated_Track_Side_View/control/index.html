@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>MS Animated Track</title>
+    <title>Animated Track Side View</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="./styles.css">
@@ -15,13 +15,11 @@
     <main id="trackApp" class="track-app">
         <svg id="trackSvg" class="track-svg" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet"
              role="img" aria-labelledby="trackTitle trackDescription">
-            <title id="trackTitle">Animated tracked vehicle running gear</title>
+            <title id="trackTitle">Animated track side view</title>
             <desc id="trackDescription">Side view of a continuous vehicle track with rotating wheels.</desc>
 
-            <ellipse class="ground-shadow" cx="400" cy="264" rx="340" ry="15"></ellipse>
-
             <g id="wheelAssembly" class="wheel-assembly">
-                <g class="wheel wheel-rear" data-wheel-radius="69" data-wheel-cx="145" data-wheel-cy="155"
+                <g class="wheel wheel-rear" data-wheel-pitch-radius="97" data-wheel-cx="145" data-wheel-cy="155"
                    transform="rotate(0 145 155)">
                     <circle class="wheel-tyre sprocket-tyre" cx="145" cy="155" r="69"></circle>
                     <circle class="wheel-rim" cx="145" cy="155" r="52"></circle>
@@ -29,7 +27,7 @@
                     <circle class="wheel-hub" cx="145" cy="155" r="17"></circle>
                 </g>
 
-                <g class="wheel wheel-front" data-wheel-radius="69" data-wheel-cx="655" data-wheel-cy="155"
+                <g class="wheel wheel-front" data-wheel-pitch-radius="97" data-wheel-cx="655" data-wheel-cy="155"
                    transform="rotate(0 655 155)">
                     <circle class="wheel-tyre sprocket-tyre" cx="655" cy="155" r="69"></circle>
                     <circle class="wheel-rim" cx="655" cy="155" r="52"></circle>
@@ -41,14 +39,8 @@
             <path id="trackGuide" class="track-guide"
                   d="M160 54 L640 54 C710 54 752 96 752 151 C752 207 711 247 650 247 L150 247 C89 247 48 207 48 151 C48 103 89 54 160 54 Z"></path>
             <path class="track-belt"
-                  d="M160 54 L640 54 C710 54 752 96 752 151 C752 207 711 247 650 247 L150 247 C89 247 48 207 48 151 C48 103 89 54 160 54 Z"></path>
+                  d="M164 66 L636 66 C700 66 740 101 740 151 C740 201 702 235 645 235 L155 235 C98 235 60 201 60 151 C60 108 99 66 164 66 Z"></path>
             <g id="treadAssembly" class="tread-assembly"></g>
-
-            <g id="directionIndicator" class="direction-indicator">
-                <path class="direction-line" d="M335 25H465"></path>
-                <path id="directionArrow" class="direction-arrow" d="M455 16L470 25L455 34"></path>
-                <text id="directionText" class="direction-text" x="400" y="19">STOPPED</text>
-            </g>
         </svg>
 
         <section id="statusPanel" class="status-panel" aria-live="polite">
