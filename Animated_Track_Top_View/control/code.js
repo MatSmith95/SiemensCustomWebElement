@@ -2,8 +2,10 @@
     'use strict';
 
     const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-    const TRACK_START = 36;
-    const TRACK_END = 764;
+    // Wrap pads outside the visible clip (y=28 to y=772). This lets each pad
+    // fully leave the control before it is recycled at the opposite end.
+    const TRACK_START = 0;
+    const TRACK_END = 800;
     const TRACK_LENGTH = TRACK_END - TRACK_START;
     const TREAD_X = 20;
     const TREAD_WIDTH = 460;
