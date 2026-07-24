@@ -1,0 +1,152 @@
+{
+  "$schema": "./CWC_manifest_Schema.json",
+  "mver": "1.2.0",
+  "control": {
+    "identity": {
+      "name": "MSAnimatedTrack",
+      "version": "1.0",
+      "displayname": "MS Animated Track",
+      "icon": "./assets/logo.png",
+      "type": "guid://EA1E9FA4-1404-4ADA-A8F1-7C2D6DACBFA8",
+      "start": "./control/index.html"
+    },
+    "environment": {
+      "prerequisites": {
+        "renderingspace": {
+          "minwidth": 260,
+          "minheight": 130,
+          "defaultwidth": 640,
+          "defaultheight": 260,
+          "unit": "px"
+        }
+      }
+    },
+    "metadata": {
+      "author": "Mathew Smith",
+      "keywords": [
+        "Track",
+        "TrackedVehicle",
+        "TankTrack",
+        "Animation",
+        "WinCCUnified",
+        "CustomWebControl"
+      ]
+    },
+    "contracts": {
+      "api": {
+        "methods": {
+          "SetSpeed": {
+            "parameters": {
+              "speed": {
+                "type": "number"
+              }
+            },
+            "description": "Set the signed track speed."
+          },
+          "StopAnimation": {
+            "description": "Set track speed to zero."
+          },
+          "SetEnabled": {
+            "parameters": {
+              "enabled": {
+                "type": "boolean"
+              }
+            },
+            "description": "Enable or pause track animation."
+          }
+        },
+        "events": {
+          "TrackStateChanged": {
+            "arguments": {
+              "payload": {
+                "type": "string"
+              }
+            },
+            "description": "Fired when the visual motion state changes."
+          }
+        },
+        "properties": {
+          "TrackSpeed": {
+            "type": "number",
+            "default": 0,
+            "description": "Signed track speed. Positive moves right and negative moves left."
+          },
+          "MaxSpeed": {
+            "type": "number",
+            "default": 100,
+            "description": "Absolute input speed represented by maximum animation speed."
+          },
+          "AnimationScale": {
+            "type": "number",
+            "default": 1,
+            "description": "Visual animation speed multiplier."
+          },
+          "Enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable track and wheel animation."
+          },
+          "ReverseDirection": {
+            "type": "boolean",
+            "default": false,
+            "description": "Reverse the displayed movement direction."
+          },
+          "TreadCount": {
+            "type": "number",
+            "default": 38,
+            "description": "Number of tread plates around the track."
+          },
+          "ShowValues": {
+            "type": "boolean",
+            "default": true,
+            "description": "Show the speed and motion state."
+          },
+          "ShowDirection": {
+            "type": "boolean",
+            "default": true,
+            "description": "Show the direction indicator."
+          },
+          "Alarm": {
+            "type": "boolean",
+            "default": false,
+            "description": "Highlight the control using the alarm color."
+          },
+          "BackgroundColor": {
+            "$ref": "#/control/types/Color",
+            "default": 0
+          },
+          "TrackColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4280297784
+          },
+          "TreadColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4282074711
+          },
+          "WheelColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4283127139
+          },
+          "HubColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4287931320
+          },
+          "AccentColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4281908728
+          },
+          "AlarmColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4293870660
+          }
+        }
+      }
+    },
+    "types": {
+      "Color": {
+        "$id": "http://tia.siemens.com/wincc-unified/types/s/color",
+        "type": "number"
+      }
+    }
+  }
+}
