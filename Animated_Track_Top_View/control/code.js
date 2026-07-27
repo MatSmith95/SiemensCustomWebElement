@@ -16,6 +16,7 @@
         AnimationScale: 1,
         Enabled: true,
         ReverseDirection: false,
+        RotationAngle: 0,
         TreadCount: 18,
         ShowValues: false,
         Alarm: false,
@@ -106,6 +107,7 @@
                 readProperty('ReverseDirection'),
                 DEFAULTS.ReverseDirection
             ),
+            rotationAngle: toNumber(readProperty('RotationAngle'), DEFAULTS.RotationAngle),
             treadCount: Math.round(clamp(
                 toNumber(readProperty('TreadCount'), DEFAULTS.TreadCount),
                 8,
@@ -118,6 +120,7 @@
 
     function cacheElements() {
         elements.app = document.getElementById('trackApp');
+        elements.svg = document.getElementById('trackSvg');
         elements.treads = document.getElementById('treadAssembly');
     }
 
@@ -208,12 +211,26 @@
         return 'STOPPED';
     }
 
+    function applyRotation(angle) {
+        const width = elements.svg.clientWidth;
+        const height = elements.svg.clientHeight;
+        const radians = angle * Math.PI / 180;
+        const rotatedWidth = Math.abs(width * Math.cos(radians)) + Math.abs(height * Math.sin(radians));
+        const rotatedHeight = Math.abs(width * Math.sin(radians)) + Math.abs(height * Math.cos(radians));
+        const scale = rotatedWidth > 0 && rotatedHeight > 0
+            ? Math.min(width / rotatedWidth, height / rotatedHeight)
+            : 1;
+
+        elements.svg.style.transform = 'rotate(' + angle.toFixed(2) + 'deg) scale(' + scale.toFixed(4) + ')';
+    }
+
     function updateStatus(config) {
         const moving = isMoving(config);
 
         elements.app.classList.toggle('moving', moving);
         elements.app.classList.toggle('disabled', !config.enabled);
         elements.app.classList.toggle('alarm', config.alarm);
+        applyRotation(config.rotationAngle);
     }
 
     function publishState(reason) {
@@ -326,6 +343,9 @@
         refresh('init');
 
         document.addEventListener('visibilitychange', syncAnimationLoop);
+        window.addEventListener('resize', function () {
+            refresh('resize');
+        });
         WebCC.onPropertyChanged.subscribe(setProperty);
     }
 

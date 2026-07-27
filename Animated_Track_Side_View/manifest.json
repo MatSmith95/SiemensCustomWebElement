@@ -4,7 +4,7 @@
   "control": {
     "identity": {
       "name": "AnimatedTrackSideView",
-      "version": "1.0",
+      "version": "1.1",
       "displayname": "Animated Track Side View",
       "icon": "./assets/logo.png",
       "type": "guid://EA1E9FA4-1404-4ADA-A8F1-7C2D6DACBFA8",
@@ -91,6 +91,11 @@
             "type": "boolean",
             "default": false,
             "description": "Reverse the displayed movement direction."
+          },
+          "RotationAngle": {
+            "type": "number",
+            "default": 0,
+            "description": "Rotate the displayed track visual in degrees."
           },
           "TreadCount": {
             "type": "number",

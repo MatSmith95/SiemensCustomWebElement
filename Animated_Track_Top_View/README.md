@@ -23,6 +23,7 @@ the repository root:
 - `AnimationScale`: visual speed multiplier.
 - `Enabled`: enables or pauses the animation.
 - `ReverseDirection`: flips the displayed direction.
+- `RotationAngle`: rotates the displayed track visual in degrees.
 - `TreadCount`: visible pads, clamped from 8 to 36.
 - `ShowValues`: retained for existing projects; the top-view status panel has
   been removed.
@@ -63,6 +64,7 @@ Example developer-console commands:
 ```javascript
 WebCC._mock.setProperty('TrackSpeed', 70)
 WebCC._mock.setProperty('TrackSpeed', -45)
+WebCC._mock.setProperty('RotationAngle', 90)
 WebCC._mock.setProperty('Alarm', true)
 WebCC._mock.callMethod('StopAnimation')
 WebCC._mock.events

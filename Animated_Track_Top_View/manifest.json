@@ -4,7 +4,7 @@
   "control": {
     "identity": {
       "name": "AnimatedTrackTopView",
-      "version": "1.0",
+      "version": "1.1",
       "displayname": "Animated Track Top View",
       "icon": "./assets/logo.png",
       "type": "guid://897B2819-0786-452E-B639-DB45EFFB90F8",
@@ -91,6 +91,11 @@
             "type": "boolean",
             "default": false,
             "description": "Reverse the displayed track direction."
+          },
+          "RotationAngle": {
+            "type": "number",
+            "default": 0,
+            "description": "Rotate the displayed track visual in degrees."
           },
           "TreadCount": {
             "type": "number",

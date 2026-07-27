@@ -23,6 +23,7 @@ the repository root:
 - `AnimationScale`: visual speed multiplier.
 - `Enabled`: enables or pauses animation.
 - `ReverseDirection`: flips the displayed direction for a left-facing vehicle.
+- `RotationAngle`: rotates the displayed track visual in degrees.
 - `TreadCount`: number of tread plates, clamped from 12 to 72.
 - `ShowValues`: retained for existing projects; the side-view status panel has
   been removed.
@@ -88,6 +89,7 @@ Example developer-console commands:
 WebCC._mock.setProperty('TrackSpeed', 75)
 WebCC._mock.setProperty('TrackSpeed', -40)
 WebCC._mock.setProperty('ReverseDirection', true)
+WebCC._mock.setProperty('RotationAngle', 90)
 WebCC._mock.setProperty('Alarm', true)
 WebCC._mock.setProperty('TreadCount', 52)
 WebCC._mock.callMethod('StopAnimation')

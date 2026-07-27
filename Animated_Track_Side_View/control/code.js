@@ -9,6 +9,7 @@
         AnimationScale: 1,
         Enabled: true,
         ReverseDirection: false,
+        RotationAngle: 0,
         TreadCount: 38,
         ShowValues: true,
         Alarm: false,
@@ -106,6 +107,7 @@
             ),
             enabled: toBoolean(readProperty('Enabled'), DEFAULTS.Enabled),
             reverseDirection: reverseDirection,
+            rotationAngle: toNumber(readProperty('RotationAngle'), DEFAULTS.RotationAngle),
             displayDirection: Math.sign(inputSpeed * directionMultiplier),
             treadCount: Math.round(clamp(
                 toNumber(readProperty('TreadCount'), DEFAULTS.TreadCount),
@@ -119,6 +121,7 @@
 
     function cacheElements() {
         elements.app = document.getElementById('trackApp');
+        elements.svg = document.getElementById('trackSvg');
         elements.guide = document.getElementById('trackGuide');
         elements.treads = document.getElementById('treadAssembly');
         state.wheelElements = Array.prototype.slice.call(document.querySelectorAll('[data-wheel-pitch-radius]'));
@@ -208,6 +211,19 @@
         return 'STOPPED';
     }
 
+    function applyRotation(angle) {
+        const width = elements.svg.clientWidth;
+        const height = elements.svg.clientHeight;
+        const radians = angle * Math.PI / 180;
+        const rotatedWidth = Math.abs(width * Math.cos(radians)) + Math.abs(height * Math.sin(radians));
+        const rotatedHeight = Math.abs(width * Math.sin(radians)) + Math.abs(height * Math.cos(radians));
+        const scale = rotatedWidth > 0 && rotatedHeight > 0
+            ? Math.min(width / rotatedWidth, height / rotatedHeight)
+            : 1;
+
+        elements.svg.style.transform = 'rotate(' + angle.toFixed(2) + 'deg) scale(' + scale.toFixed(4) + ')';
+    }
+
     function updateStatus(config) {
         const moving = isMoving(config);
         const description = describeMotion(config);
@@ -215,6 +231,7 @@
         elements.app.classList.toggle('moving', moving);
         elements.app.classList.toggle('disabled', !config.enabled);
         elements.app.classList.toggle('alarm', config.alarm);
+        applyRotation(config.rotationAngle);
     }
 
     function publishState(reason) {
@@ -327,6 +344,9 @@
         refresh('init');
 
         document.addEventListener('visibilitychange', syncAnimationLoop);
+        window.addEventListener('resize', function () {
+            refresh('resize');
+        });
         WebCC.onPropertyChanged.subscribe(setProperty);
     }
 
