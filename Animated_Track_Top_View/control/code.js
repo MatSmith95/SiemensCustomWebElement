@@ -119,8 +119,6 @@
     function cacheElements() {
         elements.app = document.getElementById('trackApp');
         elements.treads = document.getElementById('treadAssembly');
-        elements.status = document.getElementById('statusPanel');
-        elements.speedText = document.getElementById('speedText');
     }
 
     function applyColors() {
@@ -216,8 +214,6 @@
         elements.app.classList.toggle('moving', moving);
         elements.app.classList.toggle('disabled', !config.enabled);
         elements.app.classList.toggle('alarm', config.alarm);
-        elements.status.classList.toggle('hidden', !config.showValues);
-        elements.speedText.textContent = config.trackSpeed.toFixed(1);
     }
 
     function publishState(reason) {

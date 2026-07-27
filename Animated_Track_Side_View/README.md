@@ -24,7 +24,8 @@ the repository root:
 - `Enabled`: enables or pauses animation.
 - `ReverseDirection`: flips the displayed direction for a left-facing vehicle.
 - `TreadCount`: number of tread plates, clamped from 12 to 72.
-- `ShowValues`: status display option.
+- `ShowValues`: retained for existing projects; the side-view status panel has
+  been removed.
 - `Alarm`: enables alarm highlighting.
 - Siemens color properties for the background, belt, treads, wheels, hubs,
   status accent and alarm.
@@ -42,7 +43,7 @@ be changed in TIA Portal without editing `code.js`.
 | `WheelColor` | Sprocket rim and outer edge | `0xFF4B5563` / `#4B5563` |
 | `WheelInnerColor` | Dark inner sprocket body | `0xFF18202C` / `#18202C` |
 | `HubColor` | Sprocket spokes and centre hub | `0xFF94A3B8` / `#94A3B8` |
-| `AccentColor` | Moving indicator in the status panel | `0xFF38BDF8` / `#38BDF8` |
+| `AccentColor` | Retained for existing projects | `0xFF38BDF8` / `#38BDF8` |
 | `AlarmColor` | Alarm badge and highlight | `0xFFEF4444` / `#EF4444` |
 
 The manifest stores Siemens colours as unsigned decimal ARGB values. If the

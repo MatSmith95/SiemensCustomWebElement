@@ -66,53 +66,6 @@ body {
     filter: drop-shadow(0 0 8px var(--alarm-color));
 }
 
-.status-panel {
-    position: absolute;
-    left: 50%;
-    bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 72px;
-    padding: 6px 9px;
-    border: 1px solid rgba(148, 163, 184, 0.28);
-    border-radius: 8px;
-    color: var(--text-color);
-    background: rgba(15, 23, 42, 0.82);
-    font-size: 11px;
-    font-variant-numeric: tabular-nums;
-    pointer-events: none;
-    transform: translateX(-50%);
-}
-
-.status-panel.hidden {
-    display: none;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #64748b;
-}
-
-.track-app.moving .status-dot {
-    background: var(--accent-color);
-    box-shadow: 0 0 8px var(--accent-color);
-}
-
-.track-app.alarm .status-dot {
-    background: var(--alarm-color);
-    box-shadow: 0 0 8px var(--alarm-color);
-}
-
-.speed-text {
-    min-width: 42px;
-    color: var(--text-color);
-    font-weight: 700;
-    text-align: right;
-}
-
 .alarm-badge {
     position: absolute;
     top: 9px;
@@ -135,13 +88,6 @@ body {
 }
 
 @media (max-width: 260px), (max-height: 400px) {
-    .status-panel {
-        bottom: 5px;
-        min-width: 64px;
-        padding: 4px 6px;
-        font-size: 9px;
-    }
-
     .alarm-badge {
         top: 5px;
         font-size: 9px;

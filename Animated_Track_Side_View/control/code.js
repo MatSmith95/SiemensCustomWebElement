@@ -121,9 +121,6 @@
         elements.app = document.getElementById('trackApp');
         elements.guide = document.getElementById('trackGuide');
         elements.treads = document.getElementById('treadAssembly');
-        elements.status = document.getElementById('statusPanel');
-        elements.stateText = document.getElementById('stateText');
-        elements.speedText = document.getElementById('speedText');
         state.wheelElements = Array.prototype.slice.call(document.querySelectorAll('[data-wheel-pitch-radius]'));
     }
 
@@ -218,9 +215,6 @@
         elements.app.classList.toggle('moving', moving);
         elements.app.classList.toggle('disabled', !config.enabled);
         elements.app.classList.toggle('alarm', config.alarm);
-        elements.status.classList.toggle('hidden', !config.showValues);
-        elements.stateText.textContent = description;
-        elements.speedText.textContent = Math.abs(config.trackSpeed).toFixed(1);
     }
 
     function publishState(reason) {

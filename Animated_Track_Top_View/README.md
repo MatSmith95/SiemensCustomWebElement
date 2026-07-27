@@ -24,7 +24,8 @@ the repository root:
 - `Enabled`: enables or pauses the animation.
 - `ReverseDirection`: flips the displayed direction.
 - `TreadCount`: visible pads, clamped from 8 to 36.
-- `ShowValues`: optionally shows the speed value; hidden by default.
+- `ShowValues`: retained for existing projects; the top-view status panel has
+  been removed.
 - `Alarm`: enables alarm highlighting.
 
 ## Methods
@@ -46,7 +47,7 @@ reason.
 | `BackgroundColor` | Control background | `0x00000000` / transparent |
 | `TrackColor` | Continuous belt | `0xFF202938` / `#202938` |
 | `TreadColor` | Moving pads/studs | `0xFF3B4657` / `#3B4657` |
-| `AccentColor` | Moving indicator when values are shown | `0xFF38BDF8` / `#38BDF8` |
+| `AccentColor` | Retained for existing projects | `0xFF38BDF8` / `#38BDF8` |
 | `AlarmColor` | Alarm badge and highlight | `0xFFEF4444` / `#EF4444` |
 
 ## Local preview
