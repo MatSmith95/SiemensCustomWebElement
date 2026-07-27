@@ -1,0 +1,220 @@
+{
+  "$schema": "./CWC_manifest_Schema.json",
+  "mver": "1.2.0",
+  "control": {
+    "identity": {
+      "name": "DatapathVideoWallEditor",
+      "version": "1.1",
+      "displayname": "Datapath Video Wall Editor",
+      "icon": "./assets/logo.png",
+      "type": "guid://54F807D6-B8B8-4932-979D-598BE46E6A03",
+      "start": "./control/index.html"
+    },
+    "environment": {
+      "prerequisites": {
+        "renderingspace": {
+          "minwidth": 360,
+          "minheight": 280,
+          "defaultwidth": 1000,
+          "defaultheight": 680,
+          "unit": "px"
+        }
+      }
+    },
+    "metadata": {
+      "author": "Mathew Smith",
+      "description": "Touch-friendly video wall layout and feed assignment editor for WinCC Unified.",
+      "keywords": [
+        "Datapath",
+        "VideoWall",
+        "LayoutEditor",
+        "SCADA",
+        "WinCCUnified",
+        "CustomWebControl"
+      ]
+    },
+    "contracts": {
+      "api": {
+        "methods": {
+          "ApplyLayout": {
+            "description": "Accept the current layout as the reset baseline and clear the unsaved-changes flag."
+          },
+          "ResetChanges": {
+            "description": "Restore the last applied or externally supplied layout."
+          },
+          "ClearWall": {
+            "description": "Remove every feed assignment after operator confirmation."
+          },
+          "SelectCell": {
+            "parameters": {
+              "screenId": {
+                "type": "string"
+              }
+            },
+            "description": "Select a wall cell by screen ID, for example R1C1. Pass an empty string to clear the selection."
+          },
+          "MergeSelected": {
+            "parameters": {
+              "rowSpan": {
+                "type": "number"
+              },
+              "columnSpan": {
+                "type": "number"
+              }
+            },
+            "description": "Merge a rectangular area from the selected top-left cell."
+          },
+          "SplitSelected": {
+            "description": "Split the selected merged area back into individual cells."
+          }
+        },
+        "events": {
+          "LayoutChanged": {
+            "arguments": {
+              "payload": {
+                "type": "string"
+              }
+            },
+            "description": "Fired with a JSON payload whenever the current layout changes or is applied."
+          },
+          "CellSelected": {
+            "arguments": {
+              "payload": {
+                "type": "string"
+              }
+            },
+            "description": "Fired with a JSON payload when the selected wall cell changes."
+          },
+          "FeedAssigned": {
+            "arguments": {
+              "payload": {
+                "type": "string"
+              }
+            },
+            "description": "Fired with a JSON payload after a feed is assigned or replaces another feed."
+          },
+          "FeedRemoved": {
+            "arguments": {
+              "payload": {
+                "type": "string"
+              }
+            },
+            "description": "Fired with a JSON payload after a feed assignment is removed."
+          },
+          "CellsMerged": {
+            "arguments": {
+              "payload": {
+                "type": "string"
+              }
+            },
+            "description": "Fired with a JSON payload after physical wall cells are merged into one display area."
+          },
+          "CellsSplit": {
+            "arguments": {
+              "payload": {
+                "type": "string"
+              }
+            },
+            "description": "Fired with a JSON payload after a merged display area is split."
+          },
+          "ConfigurationError": {
+            "arguments": {
+              "payload": {
+                "type": "string"
+              }
+            },
+            "description": "Fired with a JSON payload when supplied configuration cannot be accepted completely."
+          }
+        },
+        "properties": {
+          "WallName": {
+            "type": "string",
+            "default": "",
+            "description": "Optional wall name or identifier."
+          },
+          "Rows": {
+            "type": "number",
+            "default": 2,
+            "description": "Number of display rows. Valid range is 1 to 8."
+          },
+          "Columns": {
+            "type": "number",
+            "default": 3,
+            "description": "Number of display columns. Valid range is 1 to 12; total cells cannot exceed 64."
+          },
+          "DisplayGap": {
+            "type": "number",
+            "default": 8,
+            "description": "Gap between display cells in pixels, from 0 to 40."
+          },
+          "AvailableFeedsJson": {
+            "type": "string",
+            "default": "[]",
+            "description": "JSON array of available video feed definitions."
+          },
+          "LayoutJson": {
+            "type": "string",
+            "default": "",
+            "description": "Complete versioned video wall layout JSON. Updated after operator changes."
+          },
+          "AllowDuplicateFeeds": {
+            "type": "boolean",
+            "default": false,
+            "description": "Allow one feed to be assigned to more than one cell."
+          },
+          "EditEnabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable operator configuration actions."
+          },
+          "SelectedCell": {
+            "type": "string",
+            "default": "",
+            "description": "Selected screen ID, for example R1C1, or an empty string."
+          },
+          "StatusText": {
+            "type": "string",
+            "default": "Ready",
+            "description": "Latest status or configuration error message."
+          },
+          "HasUnsavedChanges": {
+            "type": "boolean",
+            "default": false,
+            "description": "True when the current layout differs from the applied or externally supplied baseline."
+          },
+          "BackgroundColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4278915616,
+            "description": "Control background colour in WinCC Unified ARGB format."
+          },
+          "CellColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4279771956,
+            "description": "Unassigned cell colour in WinCC Unified ARGB format."
+          },
+          "SelectedCellColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4279150057,
+            "description": "Selected cell accent colour in WinCC Unified ARGB format."
+          },
+          "AssignedCellColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4279522923,
+            "description": "Assigned cell colour in WinCC Unified ARGB format."
+          },
+          "TextColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4294507260,
+            "description": "Primary control text colour in WinCC Unified ARGB format."
+          }
+        }
+      }
+    },
+    "types": {
+      "Color": {
+        "$id": "http://tia.siemens.com/wincc-unified/types/s/color",
+        "type": "number"
+      }
+    }
+  }
+}

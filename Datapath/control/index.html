@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <title>Datapath Video Wall Editor</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+    <link rel='stylesheet' href='./styles.css' />
+
+    <script src='./js/webcc.mock.js'></script>
+    <script src='./js/webcc.min.js'></script>
+</head>
+
+<body>
+    <main id='datapathApp' class='datapath-app' aria-label='Video wall configuration editor'>
+        <header class='app-header'>
+            <div class='brand'>
+                <span class='brand-mark' aria-hidden='true'>
+                    <span></span><span></span><span></span><span></span>
+                </span>
+                <div class='brand-copy'>
+                    <h1 id='wallTitle'>Video Wall</h1>
+                    <span id='dimensionSummary' class='dimension-summary'>2 × 3 displays</span>
+                </div>
+            </div>
+
+            <form id='configurationForm' class='configuration-form'>
+                <label class='field field-name'>
+                    <span>Wall name</span>
+                    <input id='wallNameInput' type='text' maxlength='80' autocomplete='off' placeholder='Optional identifier' />
+                </label>
+                <label class='field field-number'>
+                    <span>Rows</span>
+                    <input id='rowsInput' type='number' inputmode='numeric' />
+                </label>
+                <label class='field field-number'>
+                    <span>Columns</span>
+                    <input id='columnsInput' type='number' inputmode='numeric' />
+                </label>
+                <label class='field field-number'>
+                    <span>Gap px</span>
+                    <input id='gapInput' type='number' inputmode='numeric' />
+                </label>
+                <button id='updateLayoutButton' class='button button-primary' type='submit'>Update wall</button>
+            </form>
+        </header>
+
+        <section class='workspace'>
+            <section class='wall-panel' aria-labelledby='wallPanelHeading'>
+                <div class='panel-heading'>
+                    <div>
+                        <h2 id='wallPanelHeading'>Wall preview</h2>
+                        <p id='selectionHint'>Select a display, then choose a feed.</p>
+                    </div>
+                    <span id='editModeBadge' class='mode-badge'>EDIT</span>
+                </div>
+
+                <div id='spanToolbar' class='span-toolbar' aria-label='Merge selected display area'>
+                    <span id='spanSummary' class='span-summary'>Select a display to merge cells</span>
+                    <label class='span-field'>
+                        <span>Rows high</span>
+                        <input id='rowSpanInput' type='number' inputmode='numeric' min='1' value='1' />
+                    </label>
+                    <label class='span-field'>
+                        <span>Columns wide</span>
+                        <input id='columnSpanInput' type='number' inputmode='numeric' min='1' value='1' />
+                    </label>
+                    <button id='mergeCellsButton' class='button' type='button'>Merge area</button>
+                    <button id='splitCellsButton' class='button' type='button'>Split area</button>
+                </div>
+
+                <div id='wallViewport' class='wall-viewport'>
+                    <div id='wallGrid' class='wall-grid' role='grid' aria-label='Video wall displays'></div>
+                </div>
+            </section>
+
+            <aside class='feed-panel' aria-labelledby='feedPanelHeading'>
+                <div class='panel-heading feed-heading'>
+                    <div>
+                        <h2 id='feedPanelHeading'>Available feeds</h2>
+                        <p id='feedSummary'>0 feeds configured</p>
+                    </div>
+                </div>
+                <div id='feedList' class='feed-list' role='listbox' aria-label='Available video feeds'></div>
+            </aside>
+        </section>
+
+        <footer class='action-bar'>
+            <div id='statusRegion' class='status-region' role='status' aria-live='polite'>
+                <span id='statusIndicator' class='status-indicator' aria-hidden='true'></span>
+                <span id='statusText'>Ready</span>
+            </div>
+            <div class='actions'>
+                <button id='clearCellButton' class='button' type='button'>Clear selected</button>
+                <button id='clearWallButton' class='button button-danger' type='button'>Clear wall</button>
+                <button id='resetButton' class='button' type='button'>Reset changes</button>
+                <button id='applyButton' class='button button-primary' type='button'>Apply layout</button>
+            </div>
+        </footer>
+    </main>
+
+    <script src='./code.js'></script>
+</body>
+</html>
