@@ -122,6 +122,16 @@
             "default": "Ready",
             "description": "Latest control, file or Datapath status text."
           },
+          "FileAccessStatus": {
+            "type": "string",
+            "default": "",
+            "description": "Latest JSON file access operation and result."
+          },
+          "LastJsonFilePath": {
+            "type": "string",
+            "default": "",
+            "description": "Last JSON file path used by the control."
+          },
           "BackgroundColor": {
             "$ref": "#/control/types/Color",
             "default": 4278190080,

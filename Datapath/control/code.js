@@ -20,6 +20,8 @@
         PendingCommandJson: '',
         CommandSequence: 0,
         StatusText: 'Ready',
+        FileAccessStatus: '',
+        LastJsonFilePath: '',
         BackgroundColor: 4278190080,
         AccentColor: 4280457183
     };
@@ -95,7 +97,22 @@
     }
 
     function getJsonFolderPath() {
-        return String(readProperty('JsonFolderPath') || '').trim();
+        return normalizeFolderPath(readProperty('JsonFolderPath'));
+    }
+
+    function normalizeFolderPath(value) {
+        let folderPath = String(value || '').trim();
+
+        if ((folderPath.startsWith('"') && folderPath.endsWith('"')) ||
+            (folderPath.startsWith("'") && folderPath.endsWith("'"))) {
+            folderPath = folderPath.slice(1, -1).trim();
+        }
+
+        if (/^[a-zA-Z]:\\\\/.test(folderPath)) {
+            folderPath = folderPath.replace(/\\\\+/g, '\\');
+        }
+
+        return folderPath;
     }
 
     function joinPath(folderPath, fileName) {
@@ -116,6 +133,10 @@
         }
 
         return path;
+    }
+
+    function isWindowsPath(path) {
+        return /^[a-zA-Z]:[\\/]/.test(path);
     }
 
     function getFileSystem() {
@@ -151,6 +172,10 @@
             return Promise.resolve(fileSystemResult);
         }
 
+        if (isWindowsPath(path)) {
+            return Promise.reject(new Error('HMIRuntime.FileSystem is not available for Windows path access.'));
+        }
+
         try {
             const cached = window.localStorage.getItem(state.localStoragePrefix + path);
             if (cached !== null) return Promise.resolve(cached);
@@ -177,6 +202,10 @@
             return Promise.resolve(fileSystemResult);
         }
 
+        if (isWindowsPath(path)) {
+            return Promise.reject(new Error('HMIRuntime.FileSystem is not available for Windows path access.'));
+        }
+
         try {
             window.localStorage.setItem(state.localStoragePrefix + path, text);
             return Promise.resolve();
@@ -187,12 +216,14 @@
 
     function readJson(fileName, fallback) {
         const path = joinPath(getJsonFolderPath(), fileName);
+        reportFileAccess('Reading', fileName, path);
         return readText(path)
             .then(function (text) {
+                reportFileAccess('Read OK', fileName, path);
                 return JSON.parse(text);
             })
             .catch(function (error) {
-                publishFileError('read', fileName, error);
+                publishFileError('read', fileName, path, error);
                 return fallback;
             });
     }
@@ -200,18 +231,30 @@
     function writeJson(fileName, value) {
         const path = joinPath(getJsonFolderPath(), fileName);
         const text = JSON.stringify(value, null, 2);
+        reportFileAccess('Writing', fileName, path);
         return writeText(path, text).catch(function (error) {
-            publishFileError('write', fileName, error);
+            publishFileError('write', fileName, path, error);
             throw error;
+        }).then(function () {
+            reportFileAccess('Write OK', fileName, path);
         });
     }
 
-    function publishFileError(action, fileName, error) {
-        const message = 'Could not ' + action + ' ' + fileName + ': ' + error.message;
+    function reportFileAccess(action, fileName, path) {
+        const message = action + ' ' + fileName + ' at ' + path;
+        writeProperty('LastJsonFilePath', path);
+        writeProperty('FileAccessStatus', message);
+    }
+
+    function publishFileError(action, fileName, path, error) {
+        const message = 'Could not ' + action + ' ' + path + ': ' + error.message;
         setStatus(message);
+        writeProperty('FileAccessStatus', message);
+        writeProperty('LastJsonFilePath', path);
         fireEvent('FileError', JSON.stringify({
             action: action,
             fileName: fileName,
+            path: path,
             message: error.message,
             timestamp: new Date().toISOString()
         }));
