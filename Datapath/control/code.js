@@ -11,6 +11,10 @@
 
     const DEFAULTS = {
         JsonFolderPath: '',
+        WallConfigJson: '',
+        DatapathInputsJson: '',
+        DatapathStateJson: '',
+        CommandResultJson: '',
         EditPermit: false,
         Enabled: true,
         RefreshIntervalMs: 2000,
@@ -19,6 +23,10 @@
         SelectedLayoutId: '',
         PendingCommandJson: '',
         CommandSequence: 0,
+        PendingWallConfigJson: '',
+        WallConfigSequence: 0,
+        PendingInputsJson: '',
+        InputsSequence: 0,
         StatusText: 'Ready',
         FileAccessStatus: '',
         LastJsonFilePath: '',
@@ -43,10 +51,19 @@
         selectedTargetId: '',
         selectedLayouts: {},
         commandSequence: 0,
+        wallConfigSequence: 0,
+        inputsSequence: 0,
         refreshTimer: null,
         localStoragePrefix: 'datapath-wall-control:',
         fileAccessStatus: '',
         lastJsonFilePath: ''
+    };
+
+    const JSON_PROPERTY_BY_FILE = {
+        'wall-config.json': 'WallConfigJson',
+        'datapath-inputs.json': 'DatapathInputsJson',
+        'datapath-state.json': 'DatapathStateJson',
+        'command-result.json': 'CommandResultJson'
     };
 
     const elements = {};
@@ -291,7 +308,17 @@
     }
 
     function readJson(fileName, fallback) {
+        const propertyJson = readJsonProperty(fileName, fallback);
+        if (propertyJson !== null) {
+            return Promise.resolve(propertyJson);
+        }
+
         const path = joinPath(getJsonFolderPath(), fileName);
+        if (JSON_PROPERTY_BY_FILE[fileName] && isWindowsPath(path) && !getFileSystem()) {
+            reportPropertyAccess('Waiting for ' + JSON_PROPERTY_BY_FILE[fileName] + ' from HMI script bridge.');
+            return Promise.resolve(fallback);
+        }
+
         reportFileAccess('Reading', fileName, path);
         return readText(path)
             .then(function (text) {
@@ -302,6 +329,22 @@
                 publishFileError('read', fileName, path, error);
                 return fallback;
             });
+    }
+
+    function readJsonProperty(fileName, fallback) {
+        const propertyName = JSON_PROPERTY_BY_FILE[fileName];
+        if (!propertyName) return null;
+
+        const text = String(readProperty(propertyName) || '').trim();
+        if (!text) return null;
+
+        try {
+            reportPropertyAccess('Read property ' + propertyName);
+            return JSON.parse(text);
+        } catch (error) {
+            setStatus(propertyName + ' is not valid JSON: ' + error.message);
+            return fallback;
+        }
     }
 
     function writeJson(fileName, value) {
@@ -321,6 +364,14 @@
         state.fileAccessStatus = message;
         state.lastJsonFilePath = path;
         writeProperty('LastJsonFilePath', path);
+        writeProperty('FileAccessStatus', message);
+        renderFileDiagnostic();
+    }
+
+    function reportPropertyAccess(message) {
+        state.fileAccessStatus = message;
+        state.lastJsonFilePath = '(JSON property bridge)';
+        writeProperty('LastJsonFilePath', state.lastJsonFilePath);
         writeProperty('FileAccessStatus', message);
         renderFileDiagnostic();
     }
@@ -605,13 +656,17 @@
             zoneId: zone.id,
             requestedAt: new Date().toISOString()
         };
+        const commandText = JSON.stringify(command);
+
+        state.commandSequence += 1;
+        writeProperty('PendingCommandJson', commandText);
+        writeProperty('CommandSequence', state.commandSequence);
+        fireEvent('CommandWritten', commandText);
 
         writeJson(FILES.command, command).then(function () {
-            state.commandSequence += 1;
-            writeProperty('PendingCommandJson', JSON.stringify(command));
-            writeProperty('CommandSequence', state.commandSequence);
-            fireEvent('CommandWritten', JSON.stringify(command));
             setStatus('Command written: ' + sourceName + ' to ' + targetId);
+        }).catch(function () {
+            setStatus('Command ready for HMI script bridge: ' + sourceName + ' to ' + targetId);
         });
     }
 
@@ -664,6 +719,9 @@
     function saveWallConfig() {
         const config = parseEditor(elements.configEditor.value, 'wall-config');
         state.config = config;
+        state.wallConfigSequence += 1;
+        writeProperty('PendingWallConfigJson', JSON.stringify(config));
+        writeProperty('WallConfigSequence', state.wallConfigSequence);
         return writeJson(FILES.config, config).then(function () {
             fireEvent('ConfigurationSaved', JSON.stringify({
                 fileName: FILES.config,
@@ -671,18 +729,35 @@
             }));
             setStatus('Saved ' + FILES.config);
             render();
+        }).catch(function () {
+            fireEvent('ConfigurationSaved', JSON.stringify({
+                fileName: FILES.config,
+                timestamp: new Date().toISOString()
+            }));
+            setStatus('Wall config ready for HMI script bridge.');
+            render();
         });
     }
 
     function saveInputs() {
         const inputs = parseEditor(elements.inputsEditor.value, 'datapath-inputs');
         state.inputs = inputs;
+        state.inputsSequence += 1;
+        writeProperty('PendingInputsJson', JSON.stringify(inputs));
+        writeProperty('InputsSequence', state.inputsSequence);
         return writeJson(FILES.inputs, inputs).then(function () {
             fireEvent('ConfigurationSaved', JSON.stringify({
                 fileName: FILES.inputs,
                 timestamp: new Date().toISOString()
             }));
             setStatus('Saved ' + FILES.inputs);
+            render();
+        }).catch(function () {
+            fireEvent('ConfigurationSaved', JSON.stringify({
+                fileName: FILES.inputs,
+                timestamp: new Date().toISOString()
+            }));
+            setStatus('Inputs config ready for HMI script bridge.');
             render();
         });
     }
@@ -762,7 +837,11 @@
     function handlePropertyChanged(change) {
         if (!change || !change.key) return;
 
-        if (change.key === 'JsonFolderPath') {
+        if (change.key === 'JsonFolderPath' ||
+            change.key === 'WallConfigJson' ||
+            change.key === 'DatapathInputsJson' ||
+            change.key === 'DatapathStateJson' ||
+            change.key === 'CommandResultJson') {
             loadAllFiles();
         }
 
@@ -833,6 +912,8 @@
         state.selectedSourceId = String(readProperty('SelectedSourceId') || '');
         state.selectedTargetId = String(readProperty('SelectedTargetId') || '');
         state.commandSequence = toNumber(readProperty('CommandSequence'), DEFAULTS.CommandSequence);
+        state.wallConfigSequence = toNumber(readProperty('WallConfigSequence'), DEFAULTS.WallConfigSequence);
+        state.inputsSequence = toNumber(readProperty('InputsSequence'), DEFAULTS.InputsSequence);
         render();
         registerWebCcCallbacks();
         loadAllFiles();

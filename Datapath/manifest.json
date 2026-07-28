@@ -77,6 +77,26 @@
             "default": "",
             "description": "Folder path for Datapath JSON documents."
           },
+          "WallConfigJson": {
+            "type": "string",
+            "default": "",
+            "description": "Optional wall-config.json content supplied by a Siemens HMI script bridge."
+          },
+          "DatapathInputsJson": {
+            "type": "string",
+            "default": "",
+            "description": "Optional datapath-inputs.json content supplied by a Siemens HMI script bridge."
+          },
+          "DatapathStateJson": {
+            "type": "string",
+            "default": "",
+            "description": "Optional datapath-state.json content supplied by a Siemens HMI script bridge."
+          },
+          "CommandResultJson": {
+            "type": "string",
+            "default": "",
+            "description": "Optional command-result.json content supplied by a Siemens HMI script bridge."
+          },
           "EditPermit": {
             "type": "boolean",
             "default": false,
@@ -116,6 +136,26 @@
             "type": "number",
             "default": 0,
             "description": "Incremented every time a command is written."
+          },
+          "PendingWallConfigJson": {
+            "type": "string",
+            "default": "",
+            "description": "Latest wall-config JSON save request from Configuration Studio."
+          },
+          "WallConfigSequence": {
+            "type": "number",
+            "default": 0,
+            "description": "Incremented every time wall-config JSON is saved in Configuration Studio."
+          },
+          "PendingInputsJson": {
+            "type": "string",
+            "default": "",
+            "description": "Latest datapath-inputs JSON save request from Configuration Studio."
+          },
+          "InputsSequence": {
+            "type": "number",
+            "default": 0,
+            "description": "Incremented every time datapath-inputs JSON is saved in Configuration Studio."
           },
           "StatusText": {
             "type": "string",
