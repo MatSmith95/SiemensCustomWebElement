@@ -97,6 +97,16 @@ p {
     font-size: 11px;
 }
 
+.file-diagnostic {
+    margin-top: 2px;
+    max-width: min(820px, 78vw);
+    overflow: hidden;
+    color: #ffcfb7;
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .icon-button {
     display: inline-grid;
     width: 34px;

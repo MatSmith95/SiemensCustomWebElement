@@ -44,7 +44,9 @@
         selectedLayouts: {},
         commandSequence: 0,
         refreshTimer: null,
-        localStoragePrefix: 'datapath-wall-control:'
+        localStoragePrefix: 'datapath-wall-control:',
+        fileAccessStatus: '',
+        lastJsonFilePath: ''
     };
 
     const elements = {};
@@ -242,12 +244,17 @@
 
     function reportFileAccess(action, fileName, path) {
         const message = action + ' ' + fileName + ' at ' + path;
+        state.fileAccessStatus = message;
+        state.lastJsonFilePath = path;
         writeProperty('LastJsonFilePath', path);
         writeProperty('FileAccessStatus', message);
+        renderFileDiagnostic();
     }
 
     function publishFileError(action, fileName, path, error) {
         const message = 'Could not ' + action + ' ' + path + ': ' + error.message;
+        state.fileAccessStatus = message;
+        state.lastJsonFilePath = path;
         setStatus(message);
         writeProperty('FileAccessStatus', message);
         writeProperty('LastJsonFilePath', path);
@@ -265,6 +272,17 @@
         elements.statusText.textContent = text;
         elements.studioStatus.textContent = text;
         writeProperty('StatusText', text);
+        renderFileDiagnostic();
+    }
+
+    function renderFileDiagnostic() {
+        const folderPath = getJsonFolderPath() || '(packaged sample JSON)';
+        const filePath = state.lastJsonFilePath || '(none yet)';
+        const accessStatus = state.fileAccessStatus || 'Waiting for first JSON read.';
+
+        if (!elements.fileDiagnostic) return;
+        elements.fileDiagnostic.textContent =
+            'Folder: ' + folderPath + ' | Last file: ' + filePath + ' | ' + accessStatus;
     }
 
     function clearElement(element) {
@@ -680,6 +698,7 @@
         elements.app = document.getElementById('app');
         elements.wallTitle = document.getElementById('wallTitle');
         elements.statusText = document.getElementById('statusText');
+        elements.fileDiagnostic = document.getElementById('fileDiagnostic');
         elements.leftLayouts = document.getElementById('leftLayouts');
         elements.rightLayouts = document.getElementById('rightLayouts');
         elements.wallCanvas = document.getElementById('wallCanvas');
