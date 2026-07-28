@@ -139,11 +139,24 @@
     }
 
     function readText(path) {
-        const fileSystemResult = callFileSystem(['ReadFile', 'readFile', 'ReadTextFile', 'readTextFile'], [path, 'utf8']);
-        if (fileSystemResult) return Promise.resolve(fileSystemResult);
+        let fileSystemResult = null;
 
-        const cached = window.localStorage.getItem(state.localStoragePrefix + path);
-        if (cached !== null) return Promise.resolve(cached);
+        try {
+            fileSystemResult = callFileSystem(['ReadFile', 'readFile', 'ReadTextFile', 'readTextFile'], [path, 'utf8']);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+
+        if (fileSystemResult !== null && fileSystemResult !== undefined) {
+            return Promise.resolve(fileSystemResult);
+        }
+
+        try {
+            const cached = window.localStorage.getItem(state.localStoragePrefix + path);
+            if (cached !== null) return Promise.resolve(cached);
+        } catch (error) {
+            // Local storage is only a browser-test fallback and may be disabled in runtime.
+        }
 
         return fetch(toFileUrl(path), { cache: 'no-store' }).then(function (response) {
             if (!response.ok) throw new Error('HTTP ' + response.status);
@@ -152,11 +165,24 @@
     }
 
     function writeText(path, text) {
-        const fileSystemResult = callFileSystem(['WriteFile', 'writeFile', 'WriteTextFile', 'writeTextFile'], [path, text, 'utf8']);
-        if (fileSystemResult) return Promise.resolve(fileSystemResult);
+        let fileSystemResult = null;
 
-        window.localStorage.setItem(state.localStoragePrefix + path, text);
-        return Promise.resolve();
+        try {
+            fileSystemResult = callFileSystem(['WriteFile', 'writeFile', 'WriteTextFile', 'writeTextFile'], [path, text, 'utf8']);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+
+        if (fileSystemResult !== null && fileSystemResult !== undefined) {
+            return Promise.resolve(fileSystemResult);
+        }
+
+        try {
+            window.localStorage.setItem(state.localStoragePrefix + path, text);
+            return Promise.resolve();
+        } catch (error) {
+            return Promise.reject(error);
+        }
     }
 
     function readJson(fileName, fallback) {
