@@ -74,6 +74,11 @@ button:disabled {
     min-height: 34px;
 }
 
+.top-bar > div {
+    flex: 1;
+    min-width: 0;
+}
+
 h1,
 h2,
 p {
@@ -99,7 +104,8 @@ p {
 
 .file-diagnostic {
     margin-top: 2px;
-    max-width: min(820px, 78vw);
+    width: 100%;
+    max-width: none;
     overflow: visible;
     color: #ffcfb7;
     font-size: 10px;

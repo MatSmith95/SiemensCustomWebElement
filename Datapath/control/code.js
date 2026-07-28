@@ -159,81 +159,135 @@
             : null;
     }
 
-    function callFileSystem(methodNames, args) {
+    function getFileSystemMethod(methodNames) {
         const fileSystem = getFileSystem();
         if (!fileSystem) return null;
 
         for (let index = 0; index < methodNames.length; index++) {
             const method = fileSystem[methodNames[index]];
             if (typeof method === 'function') {
-                return method.apply(fileSystem, args);
+                return {
+                    fileSystem: fileSystem,
+                    method: method,
+                    name: methodNames[index]
+                };
             }
         }
 
         return null;
     }
 
-    function readText(path) {
-        let fileSystemResult = null;
+    function getAvailableFileSystemMethods() {
+        const fileSystem = getFileSystem();
+        if (!fileSystem) return 'HMIRuntime.FileSystem: missing';
 
+        const methods = ['ReadFile', 'readFile', 'ReadTextFile', 'readTextFile', 'WriteFile', 'writeFile', 'WriteTextFile', 'writeTextFile']
+            .filter(function (methodName) {
+                return typeof fileSystem[methodName] === 'function';
+            });
+
+        return methods.length
+            ? 'HMIRuntime.FileSystem methods: ' + methods.join(', ')
+            : 'HMIRuntime.FileSystem present, but no supported read/write methods found';
+    }
+
+    function getPathVariants(path) {
+        const variants = [path];
+
+        if (/^[a-zA-Z]:\\/.test(path)) {
+            variants.push(path.replace(/\\/g, '/'));
+        }
+
+        return variants.filter(function (variant, index, list) {
+            return list.indexOf(variant) === index;
+        });
+    }
+
+    function callFileSystemPath(methodNames, path, args) {
+        const fileSystemMethod = getFileSystemMethod(methodNames);
+        if (!fileSystemMethod) return Promise.resolve(null);
+
+        const variants = getPathVariants(path);
+        const errors = [];
+
+        function tryVariant(index) {
+            const candidatePath = variants[index];
+            let result = null;
+
+            try {
+                result = fileSystemMethod.method.apply(
+                    fileSystemMethod.fileSystem,
+                    [candidatePath].concat(args)
+                );
+            } catch (error) {
+                errors.push(candidatePath + ': ' + error.message);
+                if (index + 1 < variants.length) return tryVariant(index + 1);
+                return Promise.reject(new Error(fileSystemMethod.name + ' failed. Tried ' + errors.join(' | ')));
+            }
+
+            if (result === null || result === undefined) {
+                return Promise.resolve(null);
+            }
+
+            return Promise.resolve(result).catch(function (error) {
+                errors.push(candidatePath + ': ' + error.message);
+                if (index + 1 < variants.length) return tryVariant(index + 1);
+                throw new Error(fileSystemMethod.name + ' failed. Tried ' + errors.join(' | '));
+            });
+        }
+
+        return tryVariant(0);
+    }
+
+    function readText(path) {
         if (isBrokenWindowsPath(path)) {
             return Promise.reject(new Error(getBrokenWindowsPathMessage()));
         }
 
-        try {
-            fileSystemResult = callFileSystem(['ReadFile', 'readFile', 'ReadTextFile', 'readTextFile'], [path, 'utf8']);
-        } catch (error) {
-            return Promise.reject(error);
-        }
+        return callFileSystemPath(['ReadFile', 'readFile', 'ReadTextFile', 'readTextFile'], path, ['utf8']).then(function (fileSystemResult) {
+            if (fileSystemResult !== null && fileSystemResult !== undefined) {
+                return fileSystemResult;
+            }
 
-        if (fileSystemResult !== null && fileSystemResult !== undefined) {
-            return Promise.resolve(fileSystemResult);
-        }
+            if (isWindowsPath(path)) {
+                return Promise.reject(new Error('HMIRuntime.FileSystem is not available for Windows path access. ' + getAvailableFileSystemMethods()));
+            }
 
-        if (isWindowsPath(path)) {
-            return Promise.reject(new Error('HMIRuntime.FileSystem is not available for Windows path access.'));
-        }
+            try {
+                const cached = window.localStorage.getItem(state.localStoragePrefix + path);
+                if (cached !== null) return Promise.resolve(cached);
+            } catch (error) {
+                // Local storage is only a browser-test fallback and may be disabled in runtime.
+            }
 
-        try {
-            const cached = window.localStorage.getItem(state.localStoragePrefix + path);
-            if (cached !== null) return Promise.resolve(cached);
-        } catch (error) {
-            // Local storage is only a browser-test fallback and may be disabled in runtime.
-        }
-
-        return fetch(toFileUrl(path), { cache: 'no-store' }).then(function (response) {
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            return response.text();
+            return fetch(toFileUrl(path), { cache: 'no-store' }).then(function (response) {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.text();
+            });
         });
     }
 
     function writeText(path, text) {
-        let fileSystemResult = null;
-
         if (isBrokenWindowsPath(path)) {
             return Promise.reject(new Error(getBrokenWindowsPathMessage()));
         }
 
-        try {
-            fileSystemResult = callFileSystem(['WriteFile', 'writeFile', 'WriteTextFile', 'writeTextFile'], [path, text, 'utf8']);
-        } catch (error) {
-            return Promise.reject(error);
-        }
+        return callFileSystemPath(['WriteFile', 'writeFile', 'WriteTextFile', 'writeTextFile'], path, [text, 'utf8']).then(function (fileSystemResult) {
+            if (fileSystemResult !== null && fileSystemResult !== undefined) {
+                return fileSystemResult;
+            }
 
-        if (fileSystemResult !== null && fileSystemResult !== undefined) {
-            return Promise.resolve(fileSystemResult);
-        }
+            if (isWindowsPath(path)) {
+                return Promise.reject(new Error('HMIRuntime.FileSystem is not available for Windows path access. ' + getAvailableFileSystemMethods()));
+            }
 
-        if (isWindowsPath(path)) {
-            return Promise.reject(new Error('HMIRuntime.FileSystem is not available for Windows path access.'));
-        }
-
-        try {
-            window.localStorage.setItem(state.localStoragePrefix + path, text);
-            return Promise.resolve();
-        } catch (error) {
-            return Promise.reject(error);
-        }
+            try {
+                window.localStorage.setItem(state.localStoragePrefix + path, text);
+                return Promise.resolve();
+            } catch (error) {
+                return Promise.reject(error);
+            }
+        });
     }
 
     function readJson(fileName, fallback) {
@@ -306,6 +360,7 @@
             'Raw folder: ' + rawFolderPath + '\n' +
             'Folder used: ' + folderPath + '\n' +
             'Last file: ' + filePath + '\n' +
+            getAvailableFileSystemMethods() + '\n' +
             accessStatus;
     }
 
