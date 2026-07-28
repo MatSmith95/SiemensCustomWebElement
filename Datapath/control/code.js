@@ -102,6 +102,10 @@
         return normalizeFolderPath(readProperty('JsonFolderPath'));
     }
 
+    function getRawJsonFolderPath() {
+        return String(readProperty('JsonFolderPath') || '').trim();
+    }
+
     function normalizeFolderPath(value) {
         let folderPath = String(value || '').trim();
 
@@ -115,6 +119,14 @@
         }
 
         return folderPath;
+    }
+
+    function isBrokenWindowsPath(path) {
+        return /^[a-zA-Z]:[^\\/]/.test(path);
+    }
+
+    function getBrokenWindowsPathMessage() {
+        return 'JsonFolderPath is missing path separators. Use forward slashes in the tag, for example C:/SP0012820_Prysmian_HiTraqMk2/UserFiles/TextFiles/Datapath';
     }
 
     function joinPath(folderPath, fileName) {
@@ -164,6 +176,10 @@
     function readText(path) {
         let fileSystemResult = null;
 
+        if (isBrokenWindowsPath(path)) {
+            return Promise.reject(new Error(getBrokenWindowsPathMessage()));
+        }
+
         try {
             fileSystemResult = callFileSystem(['ReadFile', 'readFile', 'ReadTextFile', 'readTextFile'], [path, 'utf8']);
         } catch (error) {
@@ -193,6 +209,10 @@
 
     function writeText(path, text) {
         let fileSystemResult = null;
+
+        if (isBrokenWindowsPath(path)) {
+            return Promise.reject(new Error(getBrokenWindowsPathMessage()));
+        }
 
         try {
             fileSystemResult = callFileSystem(['WriteFile', 'writeFile', 'WriteTextFile', 'writeTextFile'], [path, text, 'utf8']);
@@ -276,13 +296,17 @@
     }
 
     function renderFileDiagnostic() {
+        const rawFolderPath = getRawJsonFolderPath() || '(empty)';
         const folderPath = getJsonFolderPath() || '(packaged sample JSON)';
         const filePath = state.lastJsonFilePath || '(none yet)';
         const accessStatus = state.fileAccessStatus || 'Waiting for first JSON read.';
 
         if (!elements.fileDiagnostic) return;
         elements.fileDiagnostic.textContent =
-            'Folder: ' + folderPath + ' | Last file: ' + filePath + ' | ' + accessStatus;
+            'Raw folder: ' + rawFolderPath + '\n' +
+            'Folder used: ' + folderPath + '\n' +
+            'Last file: ' + filePath + '\n' +
+            accessStatus;
     }
 
     function clearElement(element) {
