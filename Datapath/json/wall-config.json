@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "wallName": "Datapath Video Wall",
+  "sections": [
+    {
+      "id": "pilot",
+      "title": "Pilot Video Wall Location",
+      "layoutRail": "left",
+      "screens": [
+        {
+          "id": "pilot_top",
+          "title": "Pilot Top",
+          "aspect": "16:9",
+          "defaultLayoutId": "layout_1"
+        },
+        {
+          "id": "pilot_bottom",
+          "title": "Pilot Bottom",
+          "aspect": "16:9",
+          "defaultLayoutId": "layout_1"
+        }
+      ]
+    },
+    {
+      "id": "supervisor",
+      "title": "Supervisor Video Wall Location",
+      "layoutRail": "none",
+      "screens": [
+        {
+          "id": "supervisor_top",
+          "title": "Supervisor Top",
+          "aspect": "9:16",
+          "defaultLayoutId": "layout_1"
+        },
+        {
+          "id": "supervisor_bottom",
+          "title": "Supervisor Bottom",
+          "aspect": "9:16",
+          "defaultLayoutId": "layout_1"
+        }
+      ]
+    },
+    {
+      "id": "copilot",
+      "title": "Copilot Video Wall Location",
+      "layoutRail": "right",
+      "screens": [
+        {
+          "id": "copilot_top",
+          "title": "Copilot Top",
+          "aspect": "16:9",
+          "defaultLayoutId": "layout_1"
+        },
+        {
+          "id": "copilot_bottom",
+          "title": "Copilot Bottom",
+          "aspect": "16:9",
+          "defaultLayoutId": "layout_1"
+        }
+      ]
+    }
+  ],
+  "layouts": [
+    {
+      "id": "layout_1",
+      "name": "Layout 1",
+      "zones": [
+        {
+          "id": "a",
+          "label": "Full",
+          "x": 0,
+          "y": 0,
+          "w": 100,
+          "h": 100
+        }
+      ]
+    },
+    {
+      "id": "layout_2",
+      "name": "Layout 2",
+      "zones": [
+        {
+          "id": "a",
+          "label": "Top Left",
+          "x": 0,
+          "y": 0,
+          "w": 50,
+          "h": 50
+        },
+        {
+          "id": "b",
+          "label": "Top Right",
+          "x": 50,
+          "y": 0,
+          "w": 50,
+          "h": 50
+        },
+        {
+          "id": "c",
+          "label": "Bottom Left",
+          "x": 0,
+          "y": 50,
+          "w": 50,
+          "h": 50
+        },
+        {
+          "id": "d",
+          "label": "Bottom Right",
+          "x": 50,
+          "y": 50,
+          "w": 50,
+          "h": 50
+        }
+      ]
+    },
+    {
+      "id": "layout_3",
+      "name": "Layout 3",
+      "zones": [
+        {
+          "id": "a",
+          "label": "Top Left",
+          "x": 0,
+          "y": 0,
+          "w": 34,
+          "h": 33
+        },
+        {
+          "id": "b",
+          "label": "Top Centre",
+          "x": 34,
+          "y": 0,
+          "w": 33,
+          "h": 33
+        },
+        {
+          "id": "c",
+          "label": "Right Top",
+          "x": 67,
+          "y": 0,
+          "w": 33,
+          "h": 50
+        },
+        {
+          "id": "d",
+          "label": "Large Left",
+          "x": 0,
+          "y": 33,
+          "w": 67,
+          "h": 67
+        },
+        {
+          "id": "e",
+          "label": "Right Bottom",
+          "x": 67,
+          "y": 50,
+          "w": 33,
+          "h": 50
+        }
+      ]
+    }
+  ],
+  "sourcePresentation": [
+    {
+      "inputId": "pilot_scada_pc",
+      "label": "Pilot SCADA PC",
+      "visible": true,
+      "order": 10
+    },
+    {
+      "inputId": "pilot_touch_screen",
+      "label": "Pilot Touch Screen",
+      "visible": true,
+      "order": 20
+    },
+    {
+      "inputId": "camera_1",
+      "label": "Camera 1",
+      "visible": true,
+      "order": 30
+    },
+    {
+      "inputId": "camera_3",
+      "label": "Camera 3",
+      "visible": true,
+      "order": 40
+    },
+    {
+      "inputId": "sonar_1",
+      "label": "Sonar 1",
+      "visible": true,
+      "order": 50
+    },
+    {
+      "inputId": "sonar_3",
+      "label": "Sonar 3",
+      "visible": true,
+      "order": 60
+    },
+    {
+      "inputId": "nvr",
+      "label": "NVR",
+      "visible": true,
+      "order": 70
+    },
+    {
+      "inputId": "copilot_scada_pc",
+      "label": "Co-Pilot SCADA PC",
+      "visible": true,
+      "order": 80
+    },
+    {
+      "inputId": "copilot_touch_screen",
+      "label": "Co-Pilot Touch Screen",
+      "visible": true,
+      "order": 90
+    },
+    {
+      "inputId": "camera_2",
+      "label": "Camera 2",
+      "visible": true,
+      "order": 100
+    },
+    {
+      "inputId": "camera_4",
+      "label": "Camera 4",
+      "visible": true,
+      "order": 110
+    },
+    {
+      "inputId": "sonar_2",
+      "label": "Sonar 2",
+      "visible": true,
+      "order": 120
+    },
+    {
+      "inputId": "sonar_4",
+      "label": "Sonar 4",
+      "visible": true,
+      "order": 130
+    },
+    {
+      "inputId": "spare",
+      "label": "Spare",
+      "visible": true,
+      "order": 140
+    }
+  ]
+}

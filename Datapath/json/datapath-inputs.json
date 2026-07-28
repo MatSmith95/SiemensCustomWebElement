@@ -1,0 +1,75 @@
+{
+  "updatedAt": "",
+  "inputs": [
+    {
+      "inputId": "pilot_scada_pc",
+      "name": "Pilot SCADA PC",
+      "available": true
+    },
+    {
+      "inputId": "pilot_touch_screen",
+      "name": "Pilot Touch Screen",
+      "available": true
+    },
+    {
+      "inputId": "camera_1",
+      "name": "Camera 1",
+      "available": true
+    },
+    {
+      "inputId": "camera_3",
+      "name": "Camera 3",
+      "available": true
+    },
+    {
+      "inputId": "sonar_1",
+      "name": "Sonar 1",
+      "available": true
+    },
+    {
+      "inputId": "sonar_3",
+      "name": "Sonar 3",
+      "available": true
+    },
+    {
+      "inputId": "nvr",
+      "name": "NVR",
+      "available": true
+    },
+    {
+      "inputId": "copilot_scada_pc",
+      "name": "Co-Pilot SCADA PC",
+      "available": true
+    },
+    {
+      "inputId": "copilot_touch_screen",
+      "name": "Co-Pilot Touch Screen",
+      "available": true
+    },
+    {
+      "inputId": "camera_2",
+      "name": "Camera 2",
+      "available": true
+    },
+    {
+      "inputId": "camera_4",
+      "name": "Camera 4",
+      "available": true
+    },
+    {
+      "inputId": "sonar_2",
+      "name": "Sonar 2",
+      "available": true
+    },
+    {
+      "inputId": "sonar_4",
+      "name": "Sonar 4",
+      "available": true
+    },
+    {
+      "inputId": "spare",
+      "name": "Spare",
+      "available": true
+    }
+  ]
+}

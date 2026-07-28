@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Datapath Wall Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./styles.css">
+
+    <script src="./js/webcc.mock.js"></script>
+    <script src="./js/webcc.min.js"></script>
+</head>
+
+<body>
+    <main id="app" class="datapath-app">
+        <section class="operator-view">
+            <header class="top-bar">
+                <div>
+                    <h1 id="wallTitle">Datapath Video Wall</h1>
+                    <p id="statusText">Ready</p>
+                </div>
+                <button id="editButton" class="icon-button" type="button" title="Datapath Configuration Studio" aria-label="Datapath Configuration Studio">✎</button>
+            </header>
+
+            <div class="wall-row">
+                <aside id="leftLayouts" class="layout-rail"></aside>
+                <section id="wallCanvas" class="wall-canvas" aria-label="Datapath wall targets"></section>
+                <aside id="rightLayouts" class="layout-rail"></aside>
+            </div>
+
+            <section>
+                <h2>Video Source</h2>
+                <div id="sourceGrid" class="source-grid"></div>
+            </section>
+        </section>
+
+        <dialog id="studioDialog" class="studio-dialog">
+            <form method="dialog" class="studio">
+                <header class="studio-header">
+                    <div>
+                        <h2>Datapath Configuration Studio</h2>
+                        <p id="studioStatus">Edit wall configuration and visible inputs.</p>
+                    </div>
+                    <button class="icon-button" value="close" type="submit" title="Close" aria-label="Close">×</button>
+                </header>
+
+                <nav class="studio-tabs" aria-label="Configuration tabs">
+                    <button id="configTab" class="tab active" type="button">Wall Config</button>
+                    <button id="inputsTab" class="tab" type="button">Inputs</button>
+                </nav>
+
+                <section id="configPanel" class="studio-panel active">
+                    <textarea id="configEditor" spellcheck="false" aria-label="Wall config JSON"></textarea>
+                    <div class="studio-actions">
+                        <button id="reloadConfigButton" type="button">Reload</button>
+                        <button id="saveConfigButton" class="primary" type="button">Save wall-config.json</button>
+                    </div>
+                </section>
+
+                <section id="inputsPanel" class="studio-panel">
+                    <textarea id="inputsEditor" spellcheck="false" aria-label="Inputs JSON"></textarea>
+                    <div class="studio-actions">
+                        <button id="reloadInputsButton" type="button">Reload</button>
+                        <button id="saveInputsButton" class="primary" type="button">Save datapath-inputs.json</button>
+                    </div>
+                </section>
+            </form>
+        </dialog>
+    </main>
+
+    <script src="./code.js"></script>
+</body>
+</html>
