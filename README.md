@@ -7,6 +7,14 @@ This repository contains browser-based controls for Siemens WinCC Unified:
 - `Animated_Track_Top_View`
 - `Gauge`
 
+## Developer guide
+
+New programmers should start with the
+[`docs/custom-web-control-guide`](./docs/custom-web-control-guide/README.md)
+guide. It explains the repository layout, manifest and WebCC contract,
+property/method/event flow, a worked new-control implementation, local mock
+testing, GUID-named packaging, TIA Portal import, and troubleshooting.
+
 ## Animated track import packages
 
 The GUID-named ZIP files are the Siemens import artifacts. Their manifest GUIDs
