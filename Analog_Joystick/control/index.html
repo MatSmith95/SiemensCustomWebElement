@@ -15,8 +15,12 @@
     <main id='joystickApp'>
         <section class='joystick-card' aria-label='Digital analogue joystick'>
             <div id='joystickArea' class='joystick-area' role='application' aria-label='Joystick control'>
-                <div class='axis-line horizontal'></div>
-                <div class='axis-line vertical'></div>
+                <div class='direction-zone top-left' data-x='negative' data-y='positive'></div>
+                <div class='direction-zone top-right' data-x='positive' data-y='positive'></div>
+                <div class='direction-zone bottom-left' data-x='negative' data-y='negative'></div>
+                <div class='direction-zone bottom-right' data-x='positive' data-y='negative'></div>
+                <div id='verticalDeadband' class='deadband-guide vertical'></div>
+                <div id='horizontalDeadband' class='deadband-guide horizontal'></div>
                 <div class='limit-ring'></div>
                 <div id='joystickKnob' class='joystick-knob'></div>
             </div>
@@ -24,9 +28,9 @@
             <div id='valuePanel' class='value-panel'>
                 <div class='value-box'><span class='value-label'>X</span><span id='xText' class='value-number'>0.0</span></div>
                 <div class='value-box'><span class='value-label'>Y</span><span id='yText' class='value-number'>0.0</span></div>
-                <div class='value-box'><span class='value-label'>Active</span><span id='activeText' class='value-number'>FALSE</span></div>
-                <div class='value-box'><span class='value-label'>HB</span><span id='heartbeatText' class='value-number'>0</span></div>
-                <div class='value-box'><span class='value-label'>Fault</span><span id='faultText' class='value-number'>FALSE</span></div>
+                <div class='value-box hidden'><span class='value-label'>Active</span><span id='activeText' class='value-number'>FALSE</span></div>
+                <div class='value-box hidden'><span class='value-label'>HB</span><span id='heartbeatText' class='value-number'>0</span></div>
+                <div class='value-box hidden'><span class='value-label'>Fault</span><span id='faultText' class='value-number'>FALSE</span></div>
             </div>
         </section>
     </main>

@@ -4,7 +4,7 @@
   "control": {
     "identity": {
       "name": "MSDigitalJoystick",
-      "version": "1.1",
+      "version": "1.4",
       "displayname": "MSDigitalJoystickV2",
       "icon": "./assets/logo.ico",
       "type": "guid://7F7F3A42-0D7E-4AE0-B115-45B297DA62B0",
@@ -29,7 +29,7 @@
       "author": "Mathew Smith",
       "keywords": [
         "Joystick",
-        "Round",
+        "Square",
         "WinCCUnified",
         "CustomWebControl"
       ]
@@ -101,10 +101,25 @@
             "default": true,
             "description": "Enable operator interaction."
           },
-          "Deadband": {
+          "EnableX": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable X output and horizontal knob movement."
+          },
+          "EnableY": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable Y output and vertical knob movement."
+          },
+          "XDeadband": {
             "type": "number",
-            "default": 5,
-            "description": "Deadband in output units."
+            "default": 20,
+            "description": "Half-width of the vertical zero-X guide band in output units."
+          },
+          "YDeadband": {
+            "type": "number",
+            "default": 20,
+            "description": "Half-height of the horizontal zero-Y guide band in output units."
           },
           "MaxOutput": {
             "type": "number",
@@ -128,12 +143,65 @@
           },
           "ShowValues": {
             "type": "boolean",
-            "default": true,
+            "default": false,
             "description": "Show live values."
+          },
+          "MovementAreaColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4279574320
+          },
+          "KnobColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4280393437
+          },
+          "KnobBorderColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4286615978
+          },
+          "LimitBorderColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4288655562
+          },
+          "HighlightColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4284270847
+          },
+          "DeadbandColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4284270847
+          },
+          "ActiveColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4284270847
+          },
+          "TextColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4294113279
+          },
+          "MutedTextColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4288655562
+          },
+          "StatusBackgroundColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4278322711
+          },
+          "StatusBorderColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4288655562
+          },
+          "FaultColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4294941514
           }
         }
       }
     },
-    "types": {}
+    "types": {
+      "Color": {
+        "$id": "http://tia.siemens.com/wincc-unified/types/s/color",
+        "type": "number"
+      }
+    }
   }
 }

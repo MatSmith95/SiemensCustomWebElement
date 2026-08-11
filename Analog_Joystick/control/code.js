@@ -8,12 +8,27 @@
         JoyHeartbeat: 0,
         JoyFault: false,
         Enabled: true,
-        Deadband: 5,
+        EnableX: true,
+        EnableY: true,
+        XDeadband: 20,
+        YDeadband: 20,
         MaxOutput: 100,
         UpdateMs: 50,
         InvertY: true,
         AxisMode: 'XY',
-        ShowValues: true
+        ShowValues: false,
+        MovementAreaColor: 4279574320,
+        KnobColor: 4280393437,
+        KnobBorderColor: 4286615978,
+        LimitBorderColor: 4288655562,
+        HighlightColor: 4284270847,
+        DeadbandColor: 4284270847,
+        ActiveColor: 4284270847,
+        TextColor: 4294113279,
+        MutedTextColor: 4288655562,
+        StatusBackgroundColor: 4278322711,
+        StatusBorderColor: 4288655562,
+        FaultColor: 4294941514
     };
 
     const state = {
@@ -23,6 +38,8 @@
         y: 0,
         heartbeat: 0,
         fault: false,
+        inXDeadband: true,
+        inYDeadband: true,
         lastEmitMs: 0,
         flushTimer: null
     };
@@ -49,6 +66,19 @@
         return Number.isFinite(n) ? n : fallback;
     }
 
+    function toColor(value, fallback, opacityScale) {
+        let number = toNumber(value, fallback);
+        number >>>= 0;
+
+        const blue = number & 0xFF;
+        const green = (number & 0xFF00) >>> 8;
+        const red = (number & 0xFF0000) >>> 16;
+        const alpha = ((number & 0xFF000000) >>> 24) / 255;
+        const scaledAlpha = alpha * (opacityScale === undefined ? 1 : opacityScale);
+
+        return 'rgba(' + [red, green, blue, scaledAlpha].join(',') + ')';
+    }
+
     function readProperty(name) {
         if (window.WebCC && window.WebCC.Properties && name in window.WebCC.Properties) {
             return window.WebCC.Properties[name];
@@ -73,15 +103,20 @@
         const maxOutput = Math.max(1, Math.abs(toNumber(readProperty('MaxOutput'), DEFAULTS.MaxOutput)));
         let axisMode = String(readProperty('AxisMode') || 'XY').toUpperCase().trim();
         if (axisMode !== 'XY' && axisMode !== 'X_ONLY' && axisMode !== 'Y_ONLY') axisMode = 'XY';
+        const enableX = toBool(readProperty('EnableX'), true) && axisMode !== 'Y_ONLY';
+        const enableY = toBool(readProperty('EnableY'), true) && axisMode !== 'X_ONLY';
 
         return {
             enabled: toBool(readProperty('Enabled'), true),
-            deadband: clamp(Math.abs(toNumber(readProperty('Deadband'), DEFAULTS.Deadband)), 0, maxOutput),
+            enableX: enableX,
+            enableY: enableY,
+            xDeadband: clamp(Math.abs(toNumber(readProperty('XDeadband'), DEFAULTS.XDeadband)), 0, maxOutput),
+            yDeadband: clamp(Math.abs(toNumber(readProperty('YDeadband'), DEFAULTS.YDeadband)), 0, maxOutput),
             maxOutput: maxOutput,
             updateMs: clamp(toNumber(readProperty('UpdateMs'), DEFAULTS.UpdateMs), 20, 1000),
             invertY: toBool(readProperty('InvertY'), true),
             axisMode: axisMode,
-            showValues: toBool(readProperty('ShowValues'), true)
+            showValues: toBool(readProperty('ShowValues'), false)
         };
     }
 
@@ -90,12 +125,45 @@
         els.card = document.querySelector('.joystick-card');
         els.area = document.getElementById('joystickArea');
         els.knob = document.getElementById('joystickKnob');
+        els.limitRing = document.querySelector('.limit-ring');
+        els.directionZones = document.querySelectorAll('.direction-zone');
+        els.verticalDeadband = document.getElementById('verticalDeadband');
+        els.horizontalDeadband = document.getElementById('horizontalDeadband');
         els.values = document.getElementById('valuePanel');
         els.xText = document.getElementById('xText');
         els.yText = document.getElementById('yText');
         els.activeText = document.getElementById('activeText');
         els.heartbeatText = document.getElementById('heartbeatText');
         els.faultText = document.getElementById('faultText');
+    }
+
+    function applyColors() {
+        const rootStyle = document.documentElement.style;
+        const setColor = function (variable, property, opacityScale) {
+            rootStyle.setProperty(
+                variable,
+                toColor(readProperty(property), DEFAULTS[property], opacityScale)
+            );
+        };
+
+        setColor('--movement-area', 'MovementAreaColor');
+        setColor('--knob-color', 'KnobColor');
+        setColor('--knob-edge', 'KnobBorderColor');
+        setColor('--limit-border', 'LimitBorderColor', 0.25);
+        setColor('--highlight-active', 'HighlightColor', 0.22);
+        setColor('--deadband-fill', 'DeadbandColor', 0.06);
+        setColor('--deadband-edge', 'DeadbandColor', 0.16);
+        setColor('--deadband-active', 'DeadbandColor', 0.22);
+        setColor('--deadband-active-edge', 'DeadbandColor', 0.48);
+        setColor('--active-color', 'ActiveColor');
+        setColor('--active-glow-inner', 'ActiveColor', 0.20);
+        setColor('--active-glow-outer', 'ActiveColor', 0.22);
+        setColor('--center-marker', 'ActiveColor', 0.16);
+        setColor('--text-main', 'TextColor');
+        setColor('--text-muted', 'MutedTextColor');
+        setColor('--status-background', 'StatusBackgroundColor', 0.25);
+        setColor('--status-border', 'StatusBorderColor', 0.30);
+        setColor('--danger', 'FaultColor');
     }
 
     function resizeJoystick() {
@@ -107,11 +175,12 @@
 
         const availableWidth = Math.max(80, cardRect.width - 24);
         const availableHeight = Math.max(80, cardRect.height - valuesHeight - 36);
-        const size = Math.floor(clamp(Math.min(availableWidth, availableHeight), 80, 260));
-        const knob = Math.floor(clamp(size * 0.34, 34, 86));
+        const size = Math.floor(clamp(Math.min(availableWidth, availableHeight), 80, 450));
+        const knob = 45;
 
         document.documentElement.style.setProperty('--joy-size', size + 'px');
         document.documentElement.style.setProperty('--knob-size', knob + 'px');
+        updateDeadbandGuides(cfg);
 
         if (!state.active) {
             centreKnob();
@@ -131,6 +200,20 @@
         els.heartbeatText.textContent = String(state.heartbeat);
         els.faultText.textContent = state.fault ? 'TRUE' : 'FALSE';
         els.faultText.classList.toggle('fault', state.fault);
+        const hasCommand = state.active && (state.x !== 0 || state.y !== 0);
+        els.verticalDeadband.classList.toggle('active', hasCommand && state.inXDeadband);
+        els.horizontalDeadband.classList.toggle('active', hasCommand && state.inYDeadband);
+        els.verticalDeadband.classList.toggle('positive', state.y > 0);
+        els.verticalDeadband.classList.toggle('negative', state.y < 0);
+        els.horizontalDeadband.classList.toggle('positive', state.x > 0);
+        els.horizontalDeadband.classList.toggle('negative', state.x < 0);
+
+        Array.prototype.forEach.call(els.directionZones, function (zone) {
+            const xMatches = state.x === 0 || zone.dataset.x === (state.x > 0 ? 'positive' : 'negative');
+            const yMatches = state.y === 0 || zone.dataset.y === (state.y > 0 ? 'positive' : 'negative');
+            const showDirection = hasCommand && !state.inXDeadband && !state.inYDeadband;
+            zone.classList.toggle('active', showDirection && xMatches && yMatches);
+        });
     }
 
     function setKnob(dx, dy) {
@@ -142,45 +225,75 @@
     }
 
     function getGeometry() {
-        const rect = els.area.getBoundingClientRect();
-        const knobRect = els.knob.getBoundingClientRect();
-        const radius = Math.max(1, (Math.min(rect.width, rect.height) - Math.max(knobRect.width, knobRect.height)) / 2);
+        const rect = els.limitRing.getBoundingClientRect();
         return {
             centreX: rect.left + rect.width / 2,
             centreY: rect.top + rect.height / 2,
-            radius: radius
+            maxX: Math.max(1, rect.width / 2),
+            maxY: Math.max(1, rect.height / 2)
         };
     }
 
-    function applyDeadband(value, deadband) {
-        return Math.abs(value) < deadband ? 0 : value;
+    function updateDeadbandGuides(cfg) {
+        const g = getGeometry();
+        const verticalWidth = 2 * g.maxX * cfg.xDeadband / cfg.maxOutput;
+        const horizontalHeight = 2 * g.maxY * cfg.yDeadband / cfg.maxOutput;
+
+        els.verticalDeadband.style.width = verticalWidth + 'px';
+        els.verticalDeadband.style.display = cfg.enableY ? '' : 'none';
+        els.horizontalDeadband.style.height = horizontalHeight + 'px';
+        els.horizontalDeadband.style.display = cfg.enableX ? '' : 'none';
+        document.documentElement.style.setProperty('--x-deadband-half', verticalWidth / 2 + 'px');
+        document.documentElement.style.setProperty('--y-deadband-half', horizontalHeight / 2 + 'px');
+        Array.prototype.forEach.call(els.directionZones, function (zone) {
+            zone.style.width = 'calc(40% - ' + verticalWidth / 2 + 'px)';
+            zone.style.height = 'calc(40% - ' + horizontalHeight / 2 + 'px)';
+        });
+    }
+
+    function applyDeadband(value, deadband, maxOutput) {
+        const magnitude = Math.abs(value);
+        if (magnitude <= deadband || deadband >= maxOutput) return 0;
+
+        const scaledMagnitude = (magnitude - deadband) / (maxOutput - deadband) * maxOutput;
+        return Math.sign(value) * scaledMagnitude;
     }
 
     function calculateFromPointer(clientX, clientY) {
         const cfg = readConfig();
         const g = getGeometry();
 
-        let dx = clientX - g.centreX;
-        let dy = clientY - g.centreY;
+        const pointerDx = clamp(clientX - g.centreX, -g.maxX, g.maxX);
+        const pointerDy = clamp(clientY - g.centreY, -g.maxY, g.maxY);
+        const dx = cfg.enableX ? pointerDx : 0;
+        const dy = cfg.enableY ? pointerDy : 0;
 
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance > g.radius) {
-            const scale = g.radius / distance;
-            dx *= scale;
-            dy *= scale;
-        }
-
-        let x = (dx / g.radius) * cfg.maxOutput;
-        let y = (dy / g.radius) * cfg.maxOutput;
+        let x = (dx / g.maxX) * cfg.maxOutput;
+        let y = (dy / g.maxY) * cfg.maxOutput;
 
         if (cfg.invertY) y *= -1;
-        if (cfg.axisMode === 'X_ONLY') y = 0;
-        if (cfg.axisMode === 'Y_ONLY') x = 0;
+        const inXDeadband = !cfg.enableX || Math.abs(x) <= cfg.xDeadband;
+        const inYDeadband = !cfg.enableY || Math.abs(y) <= cfg.yDeadband;
 
-        x = applyDeadband(clamp(x, -cfg.maxOutput, cfg.maxOutput), cfg.deadband);
-        y = applyDeadband(clamp(y, -cfg.maxOutput, cfg.maxOutput), cfg.deadband);
+        x = applyDeadband(
+            clamp(x, -cfg.maxOutput, cfg.maxOutput),
+            cfg.xDeadband,
+            cfg.maxOutput
+        );
+        y = applyDeadband(
+            clamp(y, -cfg.maxOutput, cfg.maxOutput),
+            cfg.yDeadband,
+            cfg.maxOutput
+        );
 
-        return { x: x, y: y, dx: dx, dy: dy };
+        return {
+            x: x,
+            y: y,
+            dx: dx,
+            dy: dy,
+            inXDeadband: inXDeadband,
+            inYDeadband: inYDeadband
+        };
     }
 
     function emitNow(reason) {
@@ -234,6 +347,8 @@
         const result = calculateFromPointer(clientX, clientY);
         state.x = result.x;
         state.y = result.y;
+        state.inXDeadband = result.inXDeadband;
+        state.inYDeadband = result.inYDeadband;
         setKnob(result.dx, result.dy);
         updateStatus();
         requestEmit('move', false);
@@ -250,6 +365,8 @@
         state.x = 0;
         state.y = 0;
         state.fault = Boolean(isFault);
+        state.inXDeadband = true;
+        state.inYDeadband = true;
 
         centreKnob();
         clearTimeout(state.flushTimer);
@@ -288,8 +405,21 @@
     function setProperty(data) {
         if (!data || !data.key) return;
 
+        applyColors();
+
         if (data.key === 'Enabled' && !toBool(data.value, true)) {
             stopJoystick('disabled', false);
+        }
+
+        if (
+            state.active &&
+            (
+                data.key === 'EnableX' ||
+                data.key === 'EnableY' ||
+                data.key === 'AxisMode'
+            )
+        ) {
+            stopJoystick('axis_configuration_changed', false);
         }
 
         updateStatus();
@@ -332,6 +462,7 @@
     function initializeJoystick() {
         cacheElements();
         attachEvents();
+        applyColors();
         resizeJoystick();
         centreKnob();
         updateStatus();
@@ -364,12 +495,27 @@
                 JoyHeartbeat: 0,
                 JoyFault: false,
                 Enabled: true,
-                Deadband: 5,
+                EnableX: true,
+                EnableY: true,
+                XDeadband: 20,
+                YDeadband: 20,
                 MaxOutput: 100,
                 UpdateMs: 50,
                 InvertY: true,
                 AxisMode: 'XY',
-                ShowValues: true
+                ShowValues: false,
+                MovementAreaColor: 4279574320,
+                KnobColor: 4280393437,
+                KnobBorderColor: 4286615978,
+                LimitBorderColor: 4288655562,
+                HighlightColor: 4284270847,
+                DeadbandColor: 4284270847,
+                ActiveColor: 4284270847,
+                TextColor: 4294113279,
+                MutedTextColor: 4288655562,
+                StatusBackgroundColor: 4278322711,
+                StatusBorderColor: 4288655562,
+                FaultColor: 4294941514
             }
         },
         [],

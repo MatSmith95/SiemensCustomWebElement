@@ -1,14 +1,24 @@
 :root {
-    --panel-bg: #101827;
-    --panel-border: #31405a;
-    --text-main: #f2f7ff;
-    --text-muted: #9fb0ca;
-    --base-bg: #151f30;
-    --base-border: #52627c;
-    --knob-bg: #eef3f8;
-    --knob-edge: #8091aa;
-    --accent: #5cc8ff;
-    --danger: #ff9b4a;
+    --text-main: rgba(242, 247, 255, 1);
+    --text-muted: rgba(159, 176, 202, 1);
+    --movement-area: rgba(21, 31, 48, 1);
+    --knob-color: rgba(33, 158, 221, 1);
+    --knob-edge: rgba(128, 145, 170, 1);
+    --limit-border: rgba(159, 176, 202, 0.25);
+    --highlight-active: rgba(92, 200, 255, 0.22);
+    --deadband-fill: rgba(92, 200, 255, 0.06);
+    --deadband-edge: rgba(92, 200, 255, 0.16);
+    --deadband-active: rgba(92, 200, 255, 0.22);
+    --deadband-active-edge: rgba(92, 200, 255, 0.48);
+    --active-color: rgba(92, 200, 255, 1);
+    --active-glow-inner: rgba(92, 200, 255, 0.20);
+    --active-glow-outer: rgba(92, 200, 255, 0.22);
+    --center-marker: rgba(92, 200, 255, 0.16);
+    --status-background: rgba(2, 6, 23, 0.25);
+    --status-border: rgba(159, 176, 202, 0.30);
+    --danger: rgba(255, 155, 74, 1);
+    --x-deadband-half: 0px;
+    --y-deadband-half: 0px;
     --joy-size: 220px;
     --knob-size: 74px;
 }
@@ -37,14 +47,21 @@ body {
     min-width: 160px;
     min-height: 160px;
     padding: 8px;
+    border: none;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
 }
 
 .joystick-card {
     width: 100%;
     height: 100%;
-    border-radius: 16px;
-    border: 1px solid var(--panel-border);
-    background: var(--panel-bg);
+    border: none;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -59,47 +76,158 @@ body {
     height: var(--joy-size);
     min-width: 80px;
     min-height: 80px;
-    border-radius: 50%;
-    background:
-        radial-gradient(circle at center, rgba(92, 200, 255, 0.16) 0 3px, transparent 4px),
-        radial-gradient(circle at center, #101827 0 40%, var(--base-bg) 41% 100%);
-    border: 2px solid var(--base-border);
-    box-shadow:
-        inset 0 0 18px rgba(0, 0, 0, 0.55),
-        0 6px 18px rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: hidden;
     touch-action: none;
     flex: 0 0 auto;
 }
 
-.axis-line {
+.direction-zone {
     position: absolute;
-    opacity: 0.35;
-    background: var(--base-border);
+    width: 50%;
+    height: 50%;
+    background: transparent;
+    transition: background-color 80ms linear;
+    z-index: 1;
     pointer-events: none;
 }
 
-.axis-line.horizontal {
-    height: 1px;
-    width: 78%;
-    top: 50%;
-    left: 11%;
+.direction-zone.top-left {
+    left: 10%;
+    top: 10%;
 }
 
-.axis-line.vertical {
-    width: 1px;
-    height: 78%;
+.direction-zone.top-right {
+    right: 10%;
+    top: 10%;
+}
+
+.direction-zone.bottom-left {
+    left: 10%;
+    bottom: 10%;
+}
+
+.direction-zone.bottom-right {
+    right: 10%;
+    bottom: 10%;
+}
+
+.direction-zone.active {
+    background: var(--highlight-active);
+    box-shadow: 0 0 12px var(--active-glow-outer);
+}
+
+.direction-zone.top-left.active {
+    border-top: 1px solid var(--active-color);
+    border-left: 1px solid var(--active-color);
+    border-right: 1px solid var(--active-color);
+    border-bottom: 1px solid var(--active-color);
+}
+
+.direction-zone.top-right.active {
+    border-top: 1px solid var(--active-color);
+    border-right: 1px solid var(--active-color);
+    border-bottom: 1px solid var(--active-color);
+    border-left: 1px solid var(--active-color);
+}
+
+.direction-zone.bottom-left.active {
+    border-bottom: 1px solid var(--active-color);
+    border-left: 1px solid var(--active-color);
+    border-top: 1px solid var(--active-color);
+    border-right: 1px solid var(--active-color);
+}
+
+.direction-zone.bottom-right.active {
+    border-right: 1px solid var(--active-color);
+    border-bottom: 1px solid var(--active-color);
+    border-top: 1px solid var(--active-color);
+    border-left: 1px solid var(--active-color);
+}
+
+.deadband-guide {
+    position: absolute;
+    background: var(--deadband-fill);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.deadband-guide.vertical {
+    height: 80%;
     left: 50%;
-    top: 11%;
+    top: 10%;
+    transform: translateX(-50%);
+    border-left: 1px solid var(--deadband-edge);
+    border-right: 1px solid var(--deadband-edge);
+}
+
+.deadband-guide.horizontal {
+    width: 80%;
+    left: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 1px solid var(--deadband-edge);
+    border-bottom: 1px solid var(--deadband-edge);
+}
+
+.deadband-guide.active::after {
+    content: '';
+    position: absolute;
+    background: var(--deadband-active);
+    pointer-events: none;
+}
+
+.deadband-guide.vertical.active::after {
+    left: -1px;
+    width: calc(100% + 2px);
+    height: calc(50% - var(--y-deadband-half));
+    border-left: 1px solid var(--active-color);
+    border-right: 1px solid var(--active-color);
+}
+
+.deadband-guide.vertical.active.positive::after {
+    top: 0;
+    border-bottom: 1px solid var(--active-color);
+}
+
+.deadband-guide.vertical.active.negative::after {
+    bottom: 0;
+    border-top: 1px solid var(--active-color);
+}
+
+.deadband-guide.horizontal.active::after {
+    top: -1px;
+    width: calc(50% - var(--x-deadband-half));
+    height: calc(100% + 2px);
+    border-top: 1px solid var(--active-color);
+    border-bottom: 1px solid var(--active-color);
+}
+
+.deadband-guide.horizontal.active.positive::after {
+    right: 0;
+    border-left: 1px solid var(--active-color);
+}
+
+.deadband-guide.horizontal.active.negative::after {
+    left: 0;
+    border-right: 1px solid var(--active-color);
 }
 
 .limit-ring {
     position: absolute;
-    left: 18%;
-    top: 18%;
-    width: 64%;
-    height: 64%;
-    border-radius: 50%;
-    border: 1px solid rgba(159, 176, 202, 0.25);
+    left: 10%;
+    top: 10%;
+    width: 80%;
+    height: 80%;
+    border-radius: 8px;
+    border: 1px solid var(--limit-border);
+    background:
+        radial-gradient(circle at center, var(--center-marker) 0 3px, transparent 4px),
+        var(--movement-area);
+    z-index: 0;
     pointer-events: none;
 }
 
@@ -112,20 +240,15 @@ body {
     transform: translate(-50%, -50%);
     border-radius: 50%;
     border: 2px solid var(--knob-edge);
-    background:
-        radial-gradient(circle at 32% 25%, #ffffff 0 9%, transparent 10%),
-        radial-gradient(circle at 45% 35%, #f9fbff 0 0%, var(--knob-bg) 0 55%, #cad3df 100%);
-    box-shadow:
-        0 7px 15px rgba(0, 0, 0, 0.45),
-        inset 0 -5px 9px rgba(0, 0, 0, 0.17);
+    background: var(--knob-color);
+    box-shadow: none;
+    z-index: 2;
+    opacity: 0;
     pointer-events: none;
 }
 
-.joystick-area.active {
-    border-color: var(--accent);
-    box-shadow:
-        inset 0 0 18px rgba(92, 200, 255, 0.20),
-        0 0 16px rgba(92, 200, 255, 0.22);
+.joystick-area.active .joystick-knob {
+    opacity: 1;
 }
 
 .joystick-area.disabled {
@@ -136,7 +259,7 @@ body {
 .value-panel {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 5px;
     font-size: 11px;
     flex: 0 0 auto;
@@ -144,10 +267,10 @@ body {
 
 .value-box {
     min-width: 0;
-    border: 1px solid rgba(159, 176, 202, 0.30);
+    border: 1px solid var(--status-border);
     border-radius: 7px;
     padding: 4px 5px;
-    background: rgba(2, 6, 23, 0.25);
+    background: var(--status-background);
 }
 
 .value-label {
