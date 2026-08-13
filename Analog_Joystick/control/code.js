@@ -8,6 +8,9 @@
         JoyHeartbeat: 0,
         JoyFault: false,
         Enabled: true,
+        MimicMode: false,
+        MimicX: 0,
+        MimicY: 0,
         EnableX: true,
         EnableY: true,
         XDeadband: 20,
@@ -16,19 +19,14 @@
         UpdateMs: 50,
         InvertY: true,
         AxisMode: 'XY',
-        ShowValues: false,
         MovementAreaColor: 4279574320,
         KnobColor: 4280393437,
+        MimicKnobColor: 4286611584,
         KnobBorderColor: 4286615978,
         LimitBorderColor: 4288655562,
         HighlightColor: 4284270847,
         DeadbandColor: 4284270847,
-        ActiveColor: 4284270847,
-        TextColor: 4294113279,
-        MutedTextColor: 4288655562,
-        StatusBackgroundColor: 4278322711,
-        StatusBorderColor: 4288655562,
-        FaultColor: 4294941514
+        ActiveColor: 4284270847
     };
 
     const state = {
@@ -101,6 +99,7 @@
 
     function readConfig() {
         const maxOutput = Math.max(1, Math.abs(toNumber(readProperty('MaxOutput'), DEFAULTS.MaxOutput)));
+        const minimumDeadband = maxOutput * 0.2;
         let axisMode = String(readProperty('AxisMode') || 'XY').toUpperCase().trim();
         if (axisMode !== 'XY' && axisMode !== 'X_ONLY' && axisMode !== 'Y_ONLY') axisMode = 'XY';
         const enableX = toBool(readProperty('EnableX'), true) && axisMode !== 'Y_ONLY';
@@ -108,15 +107,17 @@
 
         return {
             enabled: toBool(readProperty('Enabled'), true),
+            mimicMode: toBool(readProperty('MimicMode'), false),
+            mimicX: toNumber(readProperty('MimicX'), DEFAULTS.MimicX),
+            mimicY: toNumber(readProperty('MimicY'), DEFAULTS.MimicY),
             enableX: enableX,
             enableY: enableY,
-            xDeadband: clamp(Math.abs(toNumber(readProperty('XDeadband'), DEFAULTS.XDeadband)), 0, maxOutput),
-            yDeadband: clamp(Math.abs(toNumber(readProperty('YDeadband'), DEFAULTS.YDeadband)), 0, maxOutput),
+            xDeadband: clamp(Math.abs(toNumber(readProperty('XDeadband'), DEFAULTS.XDeadband)), minimumDeadband, maxOutput),
+            yDeadband: clamp(Math.abs(toNumber(readProperty('YDeadband'), DEFAULTS.YDeadband)), minimumDeadband, maxOutput),
             maxOutput: maxOutput,
             updateMs: clamp(toNumber(readProperty('UpdateMs'), DEFAULTS.UpdateMs), 20, 1000),
             invertY: toBool(readProperty('InvertY'), true),
-            axisMode: axisMode,
-            showValues: toBool(readProperty('ShowValues'), false)
+            axisMode: axisMode
         };
     }
 
@@ -127,14 +128,9 @@
         els.knob = document.getElementById('joystickKnob');
         els.limitRing = document.querySelector('.limit-ring');
         els.directionZones = document.querySelectorAll('.direction-zone');
+        els.directionArrows = document.querySelectorAll('.direction-arrow');
         els.verticalDeadband = document.getElementById('verticalDeadband');
         els.horizontalDeadband = document.getElementById('horizontalDeadband');
-        els.values = document.getElementById('valuePanel');
-        els.xText = document.getElementById('xText');
-        els.yText = document.getElementById('yText');
-        els.activeText = document.getElementById('activeText');
-        els.heartbeatText = document.getElementById('heartbeatText');
-        els.faultText = document.getElementById('faultText');
     }
 
     function applyColors() {
@@ -148,6 +144,7 @@
 
         setColor('--movement-area', 'MovementAreaColor');
         setColor('--knob-color', 'KnobColor');
+        setColor('--mimic-knob-color', 'MimicKnobColor');
         setColor('--knob-edge', 'KnobBorderColor');
         setColor('--limit-border', 'LimitBorderColor', 0.25);
         setColor('--highlight-active', 'HighlightColor', 0.22);
@@ -159,22 +156,16 @@
         setColor('--active-glow-inner', 'ActiveColor', 0.20);
         setColor('--active-glow-outer', 'ActiveColor', 0.22);
         setColor('--center-marker', 'ActiveColor', 0.16);
-        setColor('--text-main', 'TextColor');
-        setColor('--text-muted', 'MutedTextColor');
-        setColor('--status-background', 'StatusBackgroundColor', 0.25);
-        setColor('--status-border', 'StatusBorderColor', 0.30);
-        setColor('--danger', 'FaultColor');
     }
 
     function resizeJoystick() {
-        if (!els.card || !els.area || !els.values) return;
+        if (!els.card || !els.area) return;
 
         const cfg = readConfig();
         const cardRect = els.card.getBoundingClientRect();
-        const valuesHeight = cfg.showValues ? els.values.getBoundingClientRect().height : 0;
 
-        const availableWidth = Math.max(80, cardRect.width - 24);
-        const availableHeight = Math.max(80, cardRect.height - valuesHeight - 36);
+        const availableWidth = Math.max(80, cardRect.width - 4);
+        const availableHeight = Math.max(80, cardRect.height - 4);
         const size = Math.floor(clamp(Math.min(availableWidth, availableHeight), 80, 450));
         const knob = 45;
 
@@ -182,38 +173,66 @@
         document.documentElement.style.setProperty('--knob-size', knob + 'px');
         updateDeadbandGuides(cfg);
 
-        if (!state.active) {
+        if (cfg.mimicMode) {
+            positionMimicKnob(cfg);
+        } else if (!state.active) {
             centreKnob();
         }
     }
 
     function updateStatus() {
         const cfg = readConfig();
+        const visual = getVisualState(cfg);
 
-        els.values.classList.toggle('hidden', !cfg.showValues);
-        els.area.classList.toggle('disabled', !cfg.enabled);
-        els.area.classList.toggle('active', state.active);
+        els.area.classList.toggle('disabled', !cfg.enabled && !cfg.mimicMode);
+        els.area.classList.toggle('mimic', cfg.mimicMode);
+        els.area.classList.toggle('active', visual.active);
 
-        els.xText.textContent = state.x.toFixed(1);
-        els.yText.textContent = state.y.toFixed(1);
-        els.activeText.textContent = state.active ? 'TRUE' : 'FALSE';
-        els.heartbeatText.textContent = String(state.heartbeat);
-        els.faultText.textContent = state.fault ? 'TRUE' : 'FALSE';
-        els.faultText.classList.toggle('fault', state.fault);
-        const hasCommand = state.active && (state.x !== 0 || state.y !== 0);
-        els.verticalDeadband.classList.toggle('active', hasCommand && state.inXDeadband);
-        els.horizontalDeadband.classList.toggle('active', hasCommand && state.inYDeadband);
-        els.verticalDeadband.classList.toggle('positive', state.y > 0);
-        els.verticalDeadband.classList.toggle('negative', state.y < 0);
-        els.horizontalDeadband.classList.toggle('positive', state.x > 0);
-        els.horizontalDeadband.classList.toggle('negative', state.x < 0);
+        if (cfg.mimicMode) {
+            positionMimicKnob(cfg);
+        }
+
+        const hasCommand = visual.x !== 0 || visual.y !== 0;
+        els.verticalDeadband.classList.toggle('active', hasCommand && visual.inXDeadband);
+        els.horizontalDeadband.classList.toggle('active', hasCommand && visual.inYDeadband);
+        els.verticalDeadband.classList.toggle('positive', visual.y > 0);
+        els.verticalDeadband.classList.toggle('negative', visual.y < 0);
+        els.horizontalDeadband.classList.toggle('positive', visual.x > 0);
+        els.horizontalDeadband.classList.toggle('negative', visual.x < 0);
 
         Array.prototype.forEach.call(els.directionZones, function (zone) {
-            const xMatches = state.x === 0 || zone.dataset.x === (state.x > 0 ? 'positive' : 'negative');
-            const yMatches = state.y === 0 || zone.dataset.y === (state.y > 0 ? 'positive' : 'negative');
-            const showDirection = hasCommand && !state.inXDeadband && !state.inYDeadband;
+            const xMatches = visual.x === 0 || zone.dataset.x === (visual.x > 0 ? 'positive' : 'negative');
+            const yMatches = visual.y === 0 || zone.dataset.y === (visual.y > 0 ? 'positive' : 'negative');
+            const showDirection = hasCommand && !visual.inXDeadband && !visual.inYDeadband;
             zone.classList.toggle('active', showDirection && xMatches && yMatches);
         });
+
+        Array.prototype.forEach.call(els.directionArrows, function (arrow) {
+            const xMatches = arrow.dataset.x === 'zero'
+                ? visual.x === 0
+                : visual.x !== 0 && arrow.dataset.x === (visual.x > 0 ? 'positive' : 'negative');
+            const yMatches = arrow.dataset.y === 'zero'
+                ? visual.y === 0
+                : visual.y !== 0 && arrow.dataset.y === (visual.y > 0 ? 'positive' : 'negative');
+            arrow.classList.toggle('active', hasCommand && xMatches && yMatches);
+        });
+    }
+
+    function getVisualState(cfg) {
+        if (!cfg.mimicMode) return state;
+
+        const rawX = cfg.enableX ? clamp(cfg.mimicX, -cfg.maxOutput, cfg.maxOutput) : 0;
+        const rawY = cfg.enableY ? clamp(cfg.mimicY, -cfg.maxOutput, cfg.maxOutput) : 0;
+        const inXDeadband = !cfg.enableX || Math.abs(rawX) <= cfg.xDeadband;
+        const inYDeadband = !cfg.enableY || Math.abs(rawY) <= cfg.yDeadband;
+
+        return {
+            active: true,
+            x: applyDeadband(rawX, cfg.xDeadband, cfg.maxOutput),
+            y: applyDeadband(rawY, cfg.yDeadband, cfg.maxOutput),
+            inXDeadband: inXDeadband,
+            inYDeadband: inYDeadband
+        };
     }
 
     function setKnob(dx, dy) {
@@ -224,13 +243,24 @@
         setKnob(0, 0);
     }
 
+    function positionMimicKnob(cfg) {
+        const g = getGeometry();
+        const x = cfg.enableX ? clamp(cfg.mimicX, -cfg.maxOutput, cfg.maxOutput) : 0;
+        const y = cfg.enableY ? clamp(cfg.mimicY, -cfg.maxOutput, cfg.maxOutput) : 0;
+        const dx = x / cfg.maxOutput * g.maxX;
+        const dy = (cfg.invertY ? -y : y) / cfg.maxOutput * g.maxY;
+
+        setKnob(dx, dy);
+    }
+
     function getGeometry() {
         const rect = els.limitRing.getBoundingClientRect();
+        const knobRadius = els.knob.getBoundingClientRect().width / 2;
         return {
             centreX: rect.left + rect.width / 2,
             centreY: rect.top + rect.height / 2,
-            maxX: Math.max(1, rect.width / 2),
-            maxY: Math.max(1, rect.height / 2)
+            maxX: Math.max(1, rect.width / 2 - knobRadius),
+            maxY: Math.max(1, rect.height / 2 - knobRadius)
         };
     }
 
@@ -240,14 +270,54 @@
         const horizontalHeight = 2 * g.maxY * cfg.yDeadband / cfg.maxOutput;
 
         els.verticalDeadband.style.width = verticalWidth + 'px';
-        els.verticalDeadband.style.display = cfg.enableY ? '' : 'none';
+        els.verticalDeadband.style.display = cfg.enableX ? '' : 'none';
         els.horizontalDeadband.style.height = horizontalHeight + 'px';
-        els.horizontalDeadband.style.display = cfg.enableX ? '' : 'none';
+        els.horizontalDeadband.style.display = cfg.enableY ? '' : 'none';
         document.documentElement.style.setProperty('--x-deadband-half', verticalWidth / 2 + 'px');
         document.documentElement.style.setProperty('--y-deadband-half', horizontalHeight / 2 + 'px');
         Array.prototype.forEach.call(els.directionZones, function (zone) {
-            zone.style.width = 'calc(40% - ' + verticalWidth / 2 + 'px)';
-            zone.style.height = 'calc(40% - ' + horizontalHeight / 2 + 'px)';
+            zone.style.width = 'calc(50% - var(--movement-inset) - ' + verticalWidth / 2 + 'px)';
+            zone.style.height = 'calc(50% - var(--movement-inset) - ' + horizontalHeight / 2 + 'px)';
+        });
+        positionDirectionArrows(verticalWidth, horizontalHeight);
+    }
+
+    function positionDirectionArrows(verticalWidth, horizontalHeight) {
+        const areaRect = els.area.getBoundingClientRect();
+        const ringRect = els.limitRing.getBoundingClientRect();
+        const ringLeft = ringRect.left - areaRect.left;
+        const ringTop = ringRect.top - areaRect.top;
+        const halfLeftWidth = ringRect.width / 2 - verticalWidth / 2;
+        const halfTopHeight = ringRect.height / 2 - horizontalHeight / 2;
+        const positionsX = {
+            negative: ringLeft + halfLeftWidth / 2,
+            zero: ringLeft + ringRect.width / 2,
+            positive: ringLeft + ringRect.width - halfLeftWidth / 2
+        };
+        const positionsY = {
+            positive: ringTop + halfTopHeight / 2,
+            zero: ringTop + ringRect.height / 2,
+            negative: ringTop + ringRect.height - halfTopHeight / 2
+        };
+        const arrowSize = clamp(Math.min(halfLeftWidth, halfTopHeight) * 0.45, 16, 96);
+
+        Array.prototype.forEach.call(els.directionArrows, function (arrow) {
+            arrow.style.left = positionsX[arrow.dataset.x] + 'px';
+            arrow.style.top = positionsY[arrow.dataset.y] + 'px';
+            arrow.style.fontSize = arrowSize + 'px';
+        });
+    }
+
+    function enforceDeadbandMinimums() {
+        const maxOutput = Math.max(1, Math.abs(toNumber(readProperty('MaxOutput'), DEFAULTS.MaxOutput)));
+        const minimumDeadband = maxOutput * 0.2;
+
+        ['XDeadband', 'YDeadband'].forEach(function (name) {
+            const current = Math.abs(toNumber(readProperty(name), DEFAULTS[name]));
+            const corrected = clamp(current, minimumDeadband, maxOutput);
+            if (current !== corrected) {
+                writeProperty(name, corrected);
+            }
         });
     }
 
@@ -380,7 +450,7 @@
 
     function startPointer(event) {
         const cfg = readConfig();
-        if (!cfg.enabled) return;
+        if (!cfg.enabled || cfg.mimicMode) return;
 
         event.preventDefault();
 
@@ -405,10 +475,22 @@
     function setProperty(data) {
         if (!data || !data.key) return;
 
+        if (data.key === 'XDeadband' || data.key === 'YDeadband' || data.key === 'MaxOutput') {
+            enforceDeadbandMinimums();
+        }
+
         applyColors();
 
         if (data.key === 'Enabled' && !toBool(data.value, true)) {
             stopJoystick('disabled', false);
+        }
+
+        if (data.key === 'MimicMode') {
+            if (toBool(data.value, false)) {
+                stopJoystick('mimic_mode', false);
+            } else {
+                centreKnob();
+            }
         }
 
         if (
@@ -462,6 +544,7 @@
     function initializeJoystick() {
         cacheElements();
         attachEvents();
+        enforceDeadbandMinimums();
         applyColors();
         resizeJoystick();
         centreKnob();
@@ -495,6 +578,9 @@
                 JoyHeartbeat: 0,
                 JoyFault: false,
                 Enabled: true,
+                MimicMode: false,
+                MimicX: 0,
+                MimicY: 0,
                 EnableX: true,
                 EnableY: true,
                 XDeadband: 20,
@@ -503,19 +589,14 @@
                 UpdateMs: 50,
                 InvertY: true,
                 AxisMode: 'XY',
-                ShowValues: false,
                 MovementAreaColor: 4279574320,
                 KnobColor: 4280393437,
+                MimicKnobColor: 4286611584,
                 KnobBorderColor: 4286615978,
                 LimitBorderColor: 4288655562,
                 HighlightColor: 4284270847,
                 DeadbandColor: 4284270847,
-                ActiveColor: 4284270847,
-                TextColor: 4294113279,
-                MutedTextColor: 4288655562,
-                StatusBackgroundColor: 4278322711,
-                StatusBorderColor: 4288655562,
-                FaultColor: 4294941514
+                ActiveColor: 4284270847
             }
         },
         [],

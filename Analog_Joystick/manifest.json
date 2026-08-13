@@ -4,7 +4,7 @@
   "control": {
     "identity": {
       "name": "MSDigitalJoystick",
-      "version": "1.4",
+      "version": "2.0",
       "displayname": "MSDigitalJoystickV2",
       "icon": "./assets/logo.ico",
       "type": "guid://7F7F3A42-0D7E-4AE0-B115-45B297DA62B0",
@@ -101,6 +101,21 @@
             "default": true,
             "description": "Enable operator interaction."
           },
+          "MimicMode": {
+            "type": "boolean",
+            "default": false,
+            "description": "Disable touch and display the physical joystick position."
+          },
+          "MimicX": {
+            "type": "number",
+            "default": 0,
+            "description": "Physical joystick X input displayed in MimicMode."
+          },
+          "MimicY": {
+            "type": "number",
+            "default": 0,
+            "description": "Physical joystick Y input displayed in MimicMode."
+          },
           "EnableX": {
             "type": "boolean",
             "default": true,
@@ -114,12 +129,12 @@
           "XDeadband": {
             "type": "number",
             "default": 20,
-            "description": "Half-width of the vertical zero-X guide band in output units."
+            "description": "Half-width of the vertical zero-X guide band. Minimum 20% of MaxOutput."
           },
           "YDeadband": {
             "type": "number",
             "default": 20,
-            "description": "Half-height of the horizontal zero-Y guide band in output units."
+            "description": "Half-height of the horizontal zero-Y guide band. Minimum 20% of MaxOutput."
           },
           "MaxOutput": {
             "type": "number",
@@ -141,11 +156,6 @@
             "default": "XY",
             "description": "XY, X_ONLY, or Y_ONLY."
           },
-          "ShowValues": {
-            "type": "boolean",
-            "default": false,
-            "description": "Show live values."
-          },
           "MovementAreaColor": {
             "$ref": "#/control/types/Color",
             "default": 4279574320
@@ -153,6 +163,10 @@
           "KnobColor": {
             "$ref": "#/control/types/Color",
             "default": 4280393437
+          },
+          "MimicKnobColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4286611584
           },
           "KnobBorderColor": {
             "$ref": "#/control/types/Color",
@@ -173,26 +187,6 @@
           "ActiveColor": {
             "$ref": "#/control/types/Color",
             "default": 4284270847
-          },
-          "TextColor": {
-            "$ref": "#/control/types/Color",
-            "default": 4294113279
-          },
-          "MutedTextColor": {
-            "$ref": "#/control/types/Color",
-            "default": 4288655562
-          },
-          "StatusBackgroundColor": {
-            "$ref": "#/control/types/Color",
-            "default": 4278322711
-          },
-          "StatusBorderColor": {
-            "$ref": "#/control/types/Color",
-            "default": 4288655562
-          },
-          "FaultColor": {
-            "$ref": "#/control/types/Color",
-            "default": 4294941514
           }
         }
       }
