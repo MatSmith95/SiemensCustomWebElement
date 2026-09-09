@@ -10,7 +10,7 @@
         Enabled: true,
         ReverseDirection: false,
         RotationAngle: 0,
-        TreadCount: 38,
+        TreadCount: 72,
         ShowValues: true,
         Alarm: false,
         BackgroundColor: 0,
@@ -19,6 +19,7 @@
         WheelColor: 4283127139,
         WheelInnerColor: 4279771180,
         HubColor: 4287931320,
+        GuardColor: 4291415502,
         AccentColor: 4281908728,
         AlarmColor: 4293870660
     };
@@ -111,8 +112,8 @@
             displayDirection: Math.sign(inputSpeed * directionMultiplier),
             treadCount: Math.round(clamp(
                 toNumber(readProperty('TreadCount'), DEFAULTS.TreadCount),
-                12,
-                72
+                24,
+                112
             )),
             showValues: toBoolean(readProperty('ShowValues'), DEFAULTS.ShowValues),
             alarm: toBoolean(readProperty('Alarm'), DEFAULTS.Alarm)
@@ -135,6 +136,7 @@
         rootStyle.setProperty('--wheel-color', toColor(readProperty('WheelColor'), DEFAULTS.WheelColor));
         rootStyle.setProperty('--wheel-inner-color', toColor(readProperty('WheelInnerColor'), DEFAULTS.WheelInnerColor));
         rootStyle.setProperty('--hub-color', toColor(readProperty('HubColor'), DEFAULTS.HubColor));
+        rootStyle.setProperty('--guard-color', toColor(readProperty('GuardColor'), DEFAULTS.GuardColor));
         rootStyle.setProperty('--accent-color', toColor(readProperty('AccentColor'), DEFAULTS.AccentColor));
         rootStyle.setProperty('--alarm-color', toColor(readProperty('AlarmColor'), DEFAULTS.AlarmColor));
     }
@@ -149,16 +151,16 @@
         state.pathLength = elements.guide.getTotalLength();
 
         const spacing = state.pathLength / count;
-        const width = clamp(spacing * 0.68, 12, 34);
+        const width = clamp(spacing * 0.68, 10, 23);
 
         for (let index = 0; index < count; index++) {
             const tread = document.createElementNS(SVG_NAMESPACE, 'rect');
             tread.setAttribute('class', 'tread-plate');
             tread.setAttribute('x', String(-width / 2));
-            tread.setAttribute('y', '-24');
+            tread.setAttribute('y', '-17');
             tread.setAttribute('width', String(width));
-            tread.setAttribute('height', '48');
-            tread.setAttribute('rx', '3');
+            tread.setAttribute('height', '34');
+            tread.setAttribute('rx', '2');
             tread.dataset.baseDistance = String(index * spacing);
             elements.treads.appendChild(tread);
             state.treadElements.push(tread);

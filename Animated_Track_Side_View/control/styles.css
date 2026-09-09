@@ -5,6 +5,7 @@
     --wheel-color: rgba(75, 85, 99, 1);
     --wheel-inner-color: rgba(24, 32, 44, 1);
     --hub-color: rgba(148, 163, 184, 1);
+    --guard-color: rgba(201, 205, 206, 1);
     --accent-color: rgba(56, 189, 248, 1);
     --alarm-color: rgba(239, 68, 68, 1);
     --text-color: #e8eef8;
@@ -53,46 +54,122 @@ body {
 .track-belt {
     fill: none;
     stroke: var(--track-color);
-    stroke-width: 38;
+    stroke-width: 34;
     stroke-linejoin: round;
     stroke-linecap: round;
+    opacity: 0.92;
 }
 
 .tread-plate {
     fill: var(--tread-color);
     stroke: rgba(255, 255, 255, 0.16);
-    stroke-width: 2;
+    stroke-width: 1.5;
 }
 
 .wheel-tyre {
     fill: var(--wheel-inner-color);
     stroke: var(--wheel-color);
-    stroke-width: 9;
+    stroke-width: 7;
 }
 
 .sprocket-tyre {
-    stroke-width: 12;
-    stroke-dasharray: 10 5;
+    stroke-width: 11;
+    stroke-dasharray: 9 5;
 }
 
 .wheel-rim {
     fill: var(--wheel-color);
-    stroke: rgba(255, 255, 255, 0.14);
-    stroke-width: 3;
+    stroke: rgba(255, 255, 255, 0.36);
+    stroke-width: 2;
 }
 
 .wheel-spokes {
     fill: none;
     stroke: var(--hub-color);
-    stroke-width: 7;
+    stroke-width: 6;
     stroke-linecap: round;
-    opacity: 0.68;
+    opacity: 0.78;
+}
+
+.road-wheel-spokes {
+    fill: none;
+    stroke: var(--hub-color);
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.72;
 }
 
 .wheel-hub {
     fill: var(--hub-color);
     stroke: rgba(0, 0, 0, 0.35);
+    stroke-width: 3;
+}
+
+.return-roller-tyre {
+    stroke-width: 5;
+}
+
+.guard-panel {
+    fill: var(--guard-color);
+    stroke: rgba(255, 255, 255, 0.42);
+    stroke-width: 3;
+    stroke-linejoin: round;
+}
+
+.guard-seam {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.22);
+    stroke-width: 2;
+}
+
+.guard-opening {
+    fill: var(--wheel-inner-color);
+    stroke: rgba(255, 255, 255, 0.22);
+    stroke-width: 3;
+}
+
+.small-opening {
+    opacity: 0.86;
+}
+
+.drive-opening {
+    opacity: 0.55;
+}
+
+.access-ring {
+    fill: var(--hub-color);
+    stroke: rgba(0, 0, 0, 0.28);
     stroke-width: 4;
+}
+
+.access-hub {
+    fill: var(--wheel-inner-color);
+    stroke: rgba(255, 255, 255, 0.48);
+    stroke-width: 2;
+}
+
+.inspection-slot {
+    fill: none;
+    stroke: var(--wheel-inner-color);
+    stroke-width: 14;
+    stroke-linecap: round;
+    opacity: 0.75;
+}
+
+.short-slot {
+    stroke-width: 11;
+    opacity: 0.34;
+}
+
+.rear-track-occluder {
+    fill: var(--guard-color);
+}
+
+.rear-track-cover-edge {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.42);
+    stroke-width: 3;
+    stroke-linejoin: round;
 }
 
 .alarm-badge {

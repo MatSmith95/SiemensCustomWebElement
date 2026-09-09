@@ -1,6 +1,8 @@
 # Animated Track Side View
 
-Responsive side-view tracked-vehicle animation for Siemens WinCC Unified.
+Responsive side-view tracked-vehicle animation for Siemens WinCC Unified. The
+asymmetric running gear follows the machine CAD profile, including the sloping
+upper track, long lower run, road wheels, return rollers and side guard.
 
 ## Siemens import package
 
@@ -24,7 +26,7 @@ the repository root:
 - `Enabled`: enables or pauses animation.
 - `ReverseDirection`: flips the displayed direction for a left-facing vehicle.
 - `RotationAngle`: rotates the displayed track visual in degrees.
-- `TreadCount`: number of tread plates, clamped from 12 to 72.
+- `TreadCount`: number of tread plates, clamped from 24 to 112 (default 72).
 - `ShowValues`: retained for existing projects; the side-view status panel has
   been removed.
 - `Alarm`: enables alarm highlighting.
@@ -44,6 +46,7 @@ be changed in TIA Portal without editing `code.js`.
 | `WheelColor` | Sprocket rim and outer edge | `0xFF4B5563` / `#4B5563` |
 | `WheelInnerColor` | Dark inner sprocket body | `0xFF18202C` / `#18202C` |
 | `HubColor` | Sprocket spokes and centre hub | `0xFF94A3B8` / `#94A3B8` |
+| `GuardColor` | CAD-style side guard and rear cover | `0xFFC9CDCE` / `#C9CDCE` |
 | `AccentColor` | Retained for existing projects | `0xFF38BDF8` / `#38BDF8` |
 | `AlarmColor` | Alarm badge and highlight | `0xFFEF4444` / `#EF4444` |
 
@@ -60,7 +63,8 @@ WebCC._mock.setProperties({
   TreadColor: 0xFF3B4657,
   WheelColor: 0xFF4B5563,
   WheelInnerColor: 0xFF18202C,
-  HubColor: 0xFF94A3B8
+  HubColor: 0xFF94A3B8,
+  GuardColor: 0xFFC9CDCE
 })
 ```
 

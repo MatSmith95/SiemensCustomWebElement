@@ -4,7 +4,7 @@
   "control": {
     "identity": {
       "name": "AnimatedTrackSideView",
-      "version": "1.1",
+      "version": "1.3",
       "displayname": "Animated Track Side View",
       "icon": "./assets/logo.png",
       "type": "guid://EA1E9FA4-1404-4ADA-A8F1-7C2D6DACBFA8",
@@ -99,8 +99,8 @@
           },
           "TreadCount": {
             "type": "number",
-            "default": 38,
-            "description": "Number of tread plates around the track."
+            "default": 72,
+            "description": "Number of tread plates around the track, clamped from 24 to 112."
           },
           "ShowValues": {
             "type": "boolean",
@@ -135,6 +135,10 @@
           "HubColor": {
             "$ref": "#/control/types/Color",
             "default": 4287931320
+          },
+          "GuardColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4291415502
           },
           "AccentColor": {
             "$ref": "#/control/types/Color",

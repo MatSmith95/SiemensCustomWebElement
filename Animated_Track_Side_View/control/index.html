@@ -13,34 +13,98 @@
 
 <body>
     <main id="trackApp" class="track-app">
-        <svg id="trackSvg" class="track-svg" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet"
+        <svg id="trackSvg" class="track-svg" viewBox="0 0 1100 440" preserveAspectRatio="xMidYMid meet"
              role="img" aria-labelledby="trackTitle trackDescription">
             <title id="trackTitle">Animated track side view</title>
-            <desc id="trackDescription">Side view of a continuous vehicle track with rotating wheels.</desc>
+            <desc id="trackDescription">Side view of an asymmetric continuous vehicle track with rotating sprockets and road wheels.</desc>
+
+            <defs>
+                <g id="sprocketShape">
+                    <circle class="wheel-tyre sprocket-tyre" cx="0" cy="0" r="62"></circle>
+                    <circle class="wheel-rim" cx="0" cy="0" r="47"></circle>
+                    <path class="wheel-spokes" d="M0-39V39M-39 0H39M-28-28L28 28M28-28L-28 28"></path>
+                    <circle class="wheel-hub" cx="0" cy="0" r="14"></circle>
+                </g>
+                <g id="roadWheelShape">
+                    <circle class="wheel-tyre" cx="0" cy="0" r="29"></circle>
+                    <circle class="wheel-rim" cx="0" cy="0" r="21"></circle>
+                    <path class="road-wheel-spokes" d="M0-16V16M-14-8L14 8M14-8L-14 8"></path>
+                    <circle class="wheel-hub" cx="0" cy="0" r="7"></circle>
+                </g>
+                <g id="returnRollerShape">
+                    <circle class="wheel-tyre return-roller-tyre" cx="0" cy="0" r="20"></circle>
+                    <circle class="wheel-rim" cx="0" cy="0" r="13"></circle>
+                    <circle class="wheel-hub" cx="0" cy="0" r="5"></circle>
+                </g>
+            </defs>
+
+            <path class="track-belt"
+                  d="M150 205 L485 109 L945 119 C1018 121 1055 155 1055 207 C1055 250 1028 276 990 292 L875 378 C850 396 820 402 782 402 L170 402 C103 402 55 355 55 290 C55 248 88 218 150 205 Z"></path>
 
             <g id="wheelAssembly" class="wheel-assembly">
-                <g class="wheel wheel-rear" data-wheel-pitch-radius="97" data-wheel-cx="145" data-wheel-cy="155"
-                   transform="rotate(0 145 155)">
-                    <circle class="wheel-tyre sprocket-tyre" cx="145" cy="155" r="69"></circle>
-                    <circle class="wheel-rim" cx="145" cy="155" r="52"></circle>
-                    <path class="wheel-spokes" d="M145 107V203M97 155H193M111 121L179 189M179 121L111 189"></path>
-                    <circle class="wheel-hub" cx="145" cy="155" r="17"></circle>
-                </g>
+                <use href="#sprocketShape" x="142" y="284" class="wheel wheel-rear"
+                     data-wheel-pitch-radius="73" data-wheel-cx="142" data-wheel-cy="284"></use>
+                <use href="#sprocketShape" x="985" y="205" class="wheel wheel-front"
+                     data-wheel-pitch-radius="80" data-wheel-cx="985" data-wheel-cy="205"></use>
 
-                <g class="wheel wheel-front" data-wheel-pitch-radius="97" data-wheel-cx="655" data-wheel-cy="155"
-                   transform="rotate(0 655 155)">
-                    <circle class="wheel-tyre sprocket-tyre" cx="655" cy="155" r="69"></circle>
-                    <circle class="wheel-rim" cx="655" cy="155" r="52"></circle>
-                    <path class="wheel-spokes" d="M655 107V203M607 155H703M621 121L689 189M689 121L621 189"></path>
-                    <circle class="wheel-hub" cx="655" cy="155" r="17"></circle>
-                </g>
+                <use href="#roadWheelShape" x="202" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="202" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="260" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="260" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="318" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="318" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="376" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="376" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="434" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="434" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="492" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="492" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="550" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="550" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="608" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="608" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="666" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="666" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="724" y="357" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="724" data-wheel-cy="357"></use>
+                <use href="#roadWheelShape" x="782" y="355" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="782" data-wheel-cy="355"></use>
+                <use href="#roadWheelShape" x="838" y="339" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="838" data-wheel-cy="339"></use>
+                <use href="#roadWheelShape" x="888" y="307" class="wheel road-wheel"
+                     data-wheel-pitch-radius="29" data-wheel-cx="888" data-wheel-cy="307"></use>
+
+                <use href="#returnRollerShape" x="298" y="176" class="wheel return-roller"
+                     data-wheel-pitch-radius="20" data-wheel-cx="298" data-wheel-cy="176"></use>
+                <use href="#returnRollerShape" x="486" y="136" class="wheel return-roller"
+                     data-wheel-pitch-radius="20" data-wheel-cx="486" data-wheel-cy="136"></use>
+                <use href="#returnRollerShape" x="736" y="139" class="wheel return-roller"
+                     data-wheel-pitch-radius="20" data-wheel-cx="736" data-wheel-cy="139"></use>
+            </g>
+
+            <g class="side-guard" aria-hidden="true">
+                <path class="guard-panel"
+                      d="M104 215 L218 204 L485 158 L939 158 L978 181 L937 292 L850 351 L187 351 L99 324 L84 276 Z"></path>
+                <path class="guard-seam" d="M642 160 L698 348"></path>
+                <path class="guard-opening" d="M250 245 Q285 220 329 219 Q355 223 361 248 L353 283 Q346 306 318 311 L270 311 Q244 307 239 284 Z"></path>
+                <path class="guard-opening" d="M503 263 Q510 246 529 244 H602 Q622 247 628 265 V292 Q624 307 606 310 H525 Q506 307 501 292 Z"></path>
+                <path class="guard-opening small-opening" d="M426 225 Q440 210 461 209 H486 Q500 211 505 226 L499 259 Q494 276 476 280 H447 Q426 276 422 259 Z"></path>
+                <circle class="access-ring" cx="568" cy="219" r="32"></circle>
+                <circle class="access-hub" cx="568" cy="219" r="10"></circle>
+                <path class="guard-opening drive-opening"
+                      d="M770 205 H860 Q889 207 900 226 L874 257 Q857 275 820 279 H790 Q770 275 763 257 L758 230 Q759 214 770 205 Z"></path>
+                <path class="inspection-slot" d="M798 300 L848 284"></path>
+                <path class="inspection-slot short-slot" d="M886 250 L927 227"></path>
             </g>
 
             <path id="trackGuide" class="track-guide"
-                  d="M160 54 L640 54 C710 54 752 96 752 151 C752 207 711 247 650 247 L150 247 C89 247 48 207 48 151 C48 103 89 54 160 54 Z"></path>
-            <path class="track-belt"
-                  d="M164 66 L636 66 C700 66 740 101 740 151 C740 201 702 235 645 235 L155 235 C98 235 60 201 60 151 C60 108 99 66 164 66 Z"></path>
+                  d="M150 205 L485 109 L945 119 C1018 121 1055 155 1055 207 C1055 250 1028 276 990 292 L875 378 C850 396 820 402 782 402 L170 402 C103 402 55 355 55 290 C55 248 88 218 150 205 Z"></path>
             <g id="treadAssembly" class="tread-assembly"></g>
+            <g class="rear-track-cover" aria-hidden="true">
+                <path class="rear-track-occluder"
+                      d="M104 215 L230 203 L230 351 L187 351 L99 324 L84 276 Z"></path>
+                <path class="rear-track-cover-edge" d="M84 276 L104 215 L230 203"></path>
+            </g>
         </svg>
 
         <div id="alarmBadge" class="alarm-badge">ALARM</div>
