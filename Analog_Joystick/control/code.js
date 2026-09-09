@@ -9,6 +9,7 @@
         JoyFault: false,
         Enabled: true,
         MimicMode: false,
+        iDigitalOnly: false,
         MimicX: 0,
         MimicY: 0,
         EnableX: true,
@@ -108,6 +109,7 @@
         return {
             enabled: toBool(readProperty('Enabled'), true),
             mimicMode: toBool(readProperty('MimicMode'), false),
+            digitalOnly: toBool(readProperty('iDigitalOnly'), false),
             mimicX: toNumber(readProperty('MimicX'), DEFAULTS.MimicX),
             mimicY: toNumber(readProperty('MimicY'), DEFAULTS.MimicY),
             enableX: enableX,
@@ -129,6 +131,7 @@
         els.limitRing = document.querySelector('.limit-ring');
         els.directionZones = document.querySelectorAll('.direction-zone');
         els.directionArrows = document.querySelectorAll('.direction-arrow');
+        els.digitalButtons = document.querySelectorAll('.digital-button');
         els.verticalDeadband = document.getElementById('verticalDeadband');
         els.horizontalDeadband = document.getElementById('horizontalDeadband');
     }
@@ -186,6 +189,7 @@
 
         els.area.classList.toggle('disabled', !cfg.enabled && !cfg.mimicMode);
         els.area.classList.toggle('mimic', cfg.mimicMode);
+        els.area.classList.toggle('digital-only', cfg.digitalOnly && !cfg.mimicMode);
         els.area.classList.toggle('active', visual.active);
 
         if (cfg.mimicMode) {
@@ -215,6 +219,20 @@
                 ? visual.y === 0
                 : visual.y !== 0 && arrow.dataset.y === (visual.y > 0 ? 'positive' : 'negative');
             arrow.classList.toggle('active', hasCommand && xMatches && yMatches);
+        });
+
+        Array.prototype.forEach.call(els.digitalButtons, function (button) {
+            const buttonX = Number(button.dataset.x) * cfg.maxOutput;
+            let buttonY = Number(button.dataset.y) * cfg.maxOutput;
+            if (!cfg.invertY) buttonY *= -1;
+
+            button.hidden =
+                (buttonX !== 0 && !cfg.enableX) ||
+                (buttonY !== 0 && !cfg.enableY);
+            button.classList.toggle(
+                'active',
+                visual.active && visual.x === buttonX && visual.y === buttonY
+            );
         });
     }
 
@@ -424,6 +442,15 @@
         requestEmit('move', false);
     }
 
+    function moveDigital(button, cfg) {
+        state.x = Number(button.dataset.x) * cfg.maxOutput;
+        state.y = Number(button.dataset.y) * cfg.maxOutput;
+        if (!cfg.invertY) state.y *= -1;
+        state.inXDeadband = state.x === 0;
+        state.inYDeadband = state.y === 0;
+        updateStatus();
+    }
+
     function stopJoystick(reason, isFault) {
         if (!state.active && state.x === 0 && state.y === 0) {
             updateStatus();
@@ -450,7 +477,10 @@
 
     function startPointer(event) {
         const cfg = readConfig();
-        if (!cfg.enabled || cfg.mimicMode) return;
+        if (!cfg.enabled || cfg.mimicMode || state.active) return;
+
+        const digitalButton = event.target.closest('.digital-button');
+        if (cfg.digitalOnly && (!digitalButton || digitalButton.hidden)) return;
 
         event.preventDefault();
 
@@ -462,13 +492,18 @@
             els.area.setPointerCapture(event.pointerId);
         } catch (e) {}
 
-        moveTo(event.clientX, event.clientY);
+        if (cfg.digitalOnly) {
+            moveDigital(digitalButton, cfg);
+        } else {
+            moveTo(event.clientX, event.clientY);
+        }
         requestEmit('start', true);
     }
 
     function movePointer(event) {
         if (!state.active || event.pointerId !== state.pointerId) return;
         event.preventDefault();
+        if (readConfig().digitalOnly) return;
         moveTo(event.clientX, event.clientY);
     }
 
@@ -498,7 +533,12 @@
             (
                 data.key === 'EnableX' ||
                 data.key === 'EnableY' ||
-                data.key === 'AxisMode'
+                data.key === 'AxisMode' ||
+                data.key === 'iDigitalOnly' ||
+                data.key === 'MaxOutput' ||
+                data.key === 'XDeadband' ||
+                data.key === 'YDeadband' ||
+                data.key === 'InvertY'
             )
         ) {
             stopJoystick('axis_configuration_changed', false);
@@ -524,10 +564,16 @@
     function attachEvents() {
         els.area.addEventListener('pointerdown', startPointer);
         els.area.addEventListener('pointermove', movePointer);
-        els.area.addEventListener('pointerup', function () { stopJoystick('release', false); });
-        els.area.addEventListener('pointercancel', function () { stopJoystick('pointer_cancel', true); });
-        els.area.addEventListener('lostpointercapture', function () {
-            if (state.active) stopJoystick('lost_pointer_capture', true);
+        els.area.addEventListener('pointerup', function (event) {
+            if (event.pointerId === state.pointerId) stopJoystick('release', false);
+        });
+        els.area.addEventListener('pointercancel', function (event) {
+            if (event.pointerId === state.pointerId) stopJoystick('pointer_cancel', true);
+        });
+        els.area.addEventListener('lostpointercapture', function (event) {
+            if (state.active && event.pointerId === state.pointerId) {
+                stopJoystick('lost_pointer_capture', true);
+            }
         });
 
         window.addEventListener('blur', function () {
@@ -579,6 +625,7 @@
                 JoyFault: false,
                 Enabled: true,
                 MimicMode: false,
+                iDigitalOnly: false,
                 MimicX: 0,
                 MimicY: 0,
                 EnableX: true,

@@ -241,6 +241,10 @@ body {
     pointer-events: none;
 }
 
+.direction-arrow[data-y='zero'] {
+    margin-top: -0.09em;
+}
+
 .direction-arrow.active {
     opacity: 1;
     text-shadow: 0 0 8px var(--active-color);
@@ -273,4 +277,71 @@ body {
 .joystick-area.disabled {
     opacity: 0.45;
     filter: grayscale(0.8);
+}
+
+.digital-pad {
+    display: none;
+    position: absolute;
+    inset: var(--movement-inset);
+    z-index: 4;
+}
+
+.digital-button {
+    position: absolute;
+    width: 30%;
+    height: 30%;
+    padding: 0;
+    border: 1px solid var(--limit-border);
+    border-radius: 8px;
+    background: var(--movement-area);
+    color: var(--active-color);
+    font: bold clamp(24px, 12vmin, 64px) / 1 Arial, Helvetica, sans-serif;
+    opacity: 0.75;
+    text-shadow: 0 0 4px var(--active-glow-inner);
+    touch-action: none;
+}
+
+.digital-button.up,
+.digital-button.down {
+    left: 35%;
+}
+
+.digital-button.left,
+.digital-button.right {
+    top: 35%;
+}
+
+.digital-button.up {
+    top: 0;
+}
+
+.digital-button.down {
+    bottom: 0;
+}
+
+.digital-button.left {
+    left: 0;
+}
+
+.digital-button.right {
+    right: 0;
+}
+
+.digital-button.active {
+    border-color: var(--active-color);
+    background: var(--highlight-active);
+    box-shadow: 0 0 12px var(--active-glow-outer);
+    opacity: 1;
+}
+
+.joystick-area.digital-only .direction-zone,
+.joystick-area.digital-only .deadband-guide,
+.joystick-area.digital-only .limit-ring,
+.joystick-area.digital-only .direction-arrow,
+.joystick-area.digital-only .joystick-knob {
+    display: none;
+}
+
+.joystick-area.digital-only .digital-pad {
+    display: block;
 }

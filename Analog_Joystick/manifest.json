@@ -4,7 +4,7 @@
   "control": {
     "identity": {
       "name": "MSDigitalJoystick",
-      "version": "2.0",
+      "version": "2.1",
       "displayname": "MSDigitalJoystickV2",
       "icon": "./assets/logo.ico",
       "type": "guid://7F7F3A42-0D7E-4AE0-B115-45B297DA62B0",
@@ -105,6 +105,11 @@
             "type": "boolean",
             "default": false,
             "description": "Disable touch and display the physical joystick position."
+          },
+          "iDigitalOnly": {
+            "type": "boolean",
+            "default": false,
+            "description": "Show four cardinal direction buttons that command full-scale output."
           },
           "MimicX": {
             "type": "number",
